@@ -11,7 +11,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Profile
-        fields = ['avatar', 'bio', 'birth_date', 'location', 'website']
+        fields = ['avatar', 'bio', 'birth_date', 'location', 'website', 'email_notifications']
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -22,9 +22,10 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             'id', 'username', 'email', 'first_name', 'last_name',
-            'is_approved', 'is_admin_user', 'created_at', 'profile'
+            'is_approved', 'is_admin_user', 'is_staff', 'is_superuser',
+            'created_at', 'profile'
         ]
-        read_only_fields = ['id', 'created_at', 'is_approved', 'is_admin_user']
+        read_only_fields = ['id', 'created_at', 'is_approved', 'is_admin_user', 'is_staff', 'is_superuser']
 
 
 class UserCreateSerializer(serializers.ModelSerializer):
@@ -55,7 +56,7 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Profile
-        fields = ['avatar', 'bio', 'birth_date', 'location', 'website']
+        fields = ['avatar', 'bio', 'birth_date', 'location', 'website', 'email_notifications']
 
 
 class UserProfileUpdateSerializer(serializers.ModelSerializer):

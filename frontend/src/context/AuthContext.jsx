@@ -16,7 +16,6 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-
     const savedUser = authService.getCurrentUser();
     if (savedUser) {
       setUser(savedUser);
@@ -46,8 +45,10 @@ export const AuthProvider = ({ children }) => {
     logout,
     updateUser,
     isAuthenticated: !!user,
+    // is_admin_user - может создавать посты
     isAdmin: user?.is_admin_user || false,
-    isSuperuser: user?.is_superuser || false,
+    // is_superuser или is_staff - доступ к админ-панели
+    isSuperuser: user?.is_superuser || user?.is_staff || false,
     loading,
   };
 

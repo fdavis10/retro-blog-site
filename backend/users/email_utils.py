@@ -84,16 +84,29 @@ def send_new_post_notification(post, users):
     """
     Отправляет уведомление о новом посте всем одобренным пользователям
     """
+    if not users:
+        return
+    
     subject = f'Новый пост: {post.title} - vld.blog'
     
+    # Получаем превью контента (первые 200 символов без HTML)
+    import re
+    content_preview = re.sub('<[^<]+?>', '', post.content)[:200]
+    if len(post.content) > 200:
+        content_preview += '...'
+    
     for user in users:
+        author_name = f"{post.author.first_name} {post.author.last_name}" if post.author.first_name else post.author.username
+        
         message = f"""
 Привет, {user.first_name or user.username}!
 
 На vld.blog опубликован новый пост:
 
 "{post.title}"
-Автор: {post.author.first_name} {post.author.last_name}
+Автор: {author_name}
+
+{content_preview}
 
 Читайте на сайте: {settings.SITE_URL}/post/{post.id}
 
@@ -118,7 +131,8 @@ def send_new_post_notification(post, users):
                 
                 <div style="background-color: #f0f2f5; padding: 20px; border-radius: 5px; margin: 20px 0;">
                     <h3 style="color: #3b5998; margin: 0 0 10px 0;">{post.title}</h3>
-                    <p style="color: #666; margin: 0;">Автор: {post.author.first_name} {post.author.last_name}</p>
+                    <p style="color: #666; margin: 0 0 15px 0; font-size: 12px;">Автор: {author_name}</p>
+                    <p style="color: #666; margin: 0; font-size: 13px; line-height: 1.6;">{content_preview}</p>
                 </div>
                 
                 <div style="text-align: center; margin: 30px 0;">
@@ -126,7 +140,7 @@ def send_new_post_notification(post, users):
                        style="display: inline-block; background-color: #3b5998; color: white; 
                               padding: 12px 30px; text-decoration: none; border-radius: 5px; 
                               font-weight: bold;">
-                        Читать пост
+                        Читать полностью
                     </a>
                 </div>
                 
@@ -134,7 +148,7 @@ def send_new_post_notification(post, users):
                 
                 <p style="color: #999; font-size: 12px; text-align: center;">
                     Вы получили это письмо, потому что подписаны на уведомления vld.blog.<br>
-                    Чтобы отписаться, зайдите в настройки профиля.
+                    <a href="{settings.SITE_URL}/profile/edit" style="color: #3b5998;">Отписаться от уведомлений</a>
                 </p>
             </div>
         </body>
@@ -150,5 +164,6 @@ def send_new_post_notification(post, users):
                 html_message=html_message,
                 fail_silently=True,  # Не падаем, если одно письмо не отправилось
             )
+            print(f"✅ Уведомление отправлено: {user.email}")
         except Exception as e:
-            print(f"Ошибка отправки уведомления пользователю {user.email}: {e}")
+            print(f"❌ Ошибка отправки уведомления пользователю {user.email}: {e}")
