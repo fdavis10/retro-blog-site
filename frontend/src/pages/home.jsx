@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { blogService } from '../services/blogService';
 import PostCard from '../components/PostCard';
 import Header from '../components/Header';
+import Footer from '../components/Footer';
 
 const Home = () => {
   const [posts, setPosts] = useState([]);
@@ -81,6 +82,7 @@ const Home = () => {
           )}
         </div>
       </div>
+      <Footer />
     </>
   );
 };

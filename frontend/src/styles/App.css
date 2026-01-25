@@ -1,4 +1,4 @@
-
+/* Ретро-стили в стиле Facebook 2010 */
 
 * {
   margin: 0;
@@ -7,7 +7,7 @@
 }
 
 :root {
-
+  /* Facebook 2010 Colors */
   --fb-blue: #3b5998;
   --fb-blue-dark: #2d4373;
   --fb-blue-light: #5b7ab8;
@@ -19,7 +19,8 @@
   --fb-green: #42b72a;
   --fb-red: #f02849;
   --fb-hover: #f2f3f5;
-
+  
+  /* Shadows */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.1);
   --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.1);
   --shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.15);
@@ -31,9 +32,19 @@ body {
   color: var(--fb-text);
   line-height: 1.4;
   font-size: 13px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  flex: 1;
+}
 
+/* Typography */
 h1, h2, h3, h4, h5, h6 {
   font-weight: bold;
   color: var(--fb-text);
@@ -61,7 +72,7 @@ a:hover {
   padding: 0 8px;
 }
 
-
+/* Card Style */
 .card {
   background-color: var(--fb-white);
   border: 1px solid var(--fb-border);
@@ -82,7 +93,7 @@ a:hover {
   padding: 15px;
 }
 
-
+/* Buttons */
 .btn {
   display: inline-block;
   padding: 6px 12px;
@@ -146,7 +157,7 @@ a:hover {
   font-size: 14px;
 }
 
-
+/* Forms */
 .form-group {
   margin-bottom: 15px;
 }
@@ -181,7 +192,7 @@ textarea.form-control {
   min-height: 60px;
 }
 
-
+/* Header Navigation */
 .header {
   background: linear-gradient(#4e69a2, #3b5998);
   border-bottom: 1px solid var(--fb-blue-dark);
@@ -229,7 +240,7 @@ textarea.form-control {
   text-decoration: none;
 }
 
-
+/* Avatar */
 .avatar {
   width: 40px;
   height: 40px;
@@ -248,7 +259,7 @@ textarea.form-control {
   height: 50px;
 }
 
-
+/* Post Styles */
 .post {
   margin-bottom: 10px;
 }
@@ -319,7 +330,7 @@ textarea.form-control {
   font-weight: bold;
 }
 
-
+/* Comments */
 .comment {
   display: flex;
   gap: 10px;
@@ -352,14 +363,14 @@ textarea.form-control {
   margin-top: 3px;
 }
 
-
+/* Loading */
 .loading {
   text-align: center;
   padding: 20px;
   color: var(--fb-text-light);
 }
 
-
+/* Error */
 .error {
   background-color: #ffebe8;
   border: 1px solid #dd3c10;
@@ -370,7 +381,7 @@ textarea.form-control {
   font-size: 13px;
 }
 
-
+/* Success */
 .success {
   background-color: #e7f3e7;
   border: 1px solid var(--fb-green);
@@ -381,7 +392,7 @@ textarea.form-control {
   font-size: 13px;
 }
 
-
+/* Responsive */
 @media (max-width: 768px) {
   .container {
     padding: 0 5px;

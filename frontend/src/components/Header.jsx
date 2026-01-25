@@ -14,8 +14,18 @@ const Header = () => {
   return (
     <div className="header">
       <div className="header-content">
-        <Link to="/" className="header-logo">
-          retro blog
+        <Link to="/" className="header-logo" style={{ display: 'flex', alignItems: 'center' }}>
+          <img 
+            src="/logo.svg" 
+            alt="vld.blog" 
+            style={{ height: '35px', width: 'auto' }}
+            onError={(e) => {
+              // Если SVG не загрузился, показываем текстовый логотип
+              e.target.style.display = 'none';
+              e.target.nextElementSibling.style.display = 'inline';
+            }}
+          />
+          <span style={{ display: 'none' }}>vld.blog</span>
         </Link>
 
         <nav className="header-nav">
