@@ -2,13 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { FaCheck, FaTimes, FaTrash, FaUserPlus } from 'react-icons/fa';
 import adminService from '../services/adminService';
 import Header from '../components/Header';
+import RegistrationRequests from '../components/RegistrationRequests';
 
 const AdminPanel = () => {
+  const [activeTab, setActiveTab] = useState('users'); // users, requests
   const [users, setUsers] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [filter, setFilter] = useState('all'); 
+  const [filter, setFilter] = useState('all'); // all, approved, pending
   const [showCreateModal, setShowCreateModal] = useState(false);
 
   useEffect(() => {
@@ -26,6 +28,7 @@ const AdminPanel = () => {
         if (filter === 'pending') filters.is_approved = false;
 
         const usersData = await adminService.getUsers(filters);
+        // Исправление: проверяем что это массив
         setUsers(Array.isArray(usersData) ? usersData : (usersData.results || []));
     } catch (err) {
         setError('Ошибка загрузки данных');
@@ -65,6 +68,22 @@ const AdminPanel = () => {
       <div className="container" style={{ paddingTop: '20px', paddingBottom: '20px' }}>
         <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
           <h1 style={{ marginBottom: '20px' }}>Панель администратора</h1>
+
+          {/* Вкладки */}
+          <div style={{ marginBottom: '20px', display: 'flex', gap: '10px' }}>
+            <button
+              className={`btn ${activeTab === 'users' ? 'btn-primary' : 'btn-secondary'}`}
+              onClick={() => setActiveTab('users')}
+            >
+              Пользователи
+            </button>
+            <button
+              className={`btn ${activeTab === 'requests' ? 'btn-primary' : 'btn-secondary'}`}
+              onClick={() => setActiveTab('requests')}
+            >
+              Заявки на регистрацию
+            </button>
+          </div>
 
           {/* Статистика */}
           {stats && (
@@ -121,7 +140,8 @@ const AdminPanel = () => {
           )}
 
           {/* Управление пользователями */}
-          <div className="card">
+          {activeTab === 'users' && (
+            <div className="card">
             <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span>Управление пользователями</span>
               <button 
@@ -237,6 +257,12 @@ const AdminPanel = () => {
               )}
             </div>
           </div>
+          )}
+
+          {/* Заявки на регистрацию */}
+          {activeTab === 'requests' && (
+            <RegistrationRequests />
+          )}
 
           {/* Модальное окно создания пользователя */}
           {showCreateModal && (

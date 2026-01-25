@@ -11,6 +11,13 @@ urlpatterns = [
     path('users/<int:pk>/approve/', views.UserApproveView.as_view(), name='user_approve'),
     path('users/<int:pk>/delete/', views.UserDeleteView.as_view(), name='user_delete'),
     
+    # Registration Requests
+    path('requests/', views.RegistrationRequestListView.as_view(), name='request_list'),
+    path('requests/<int:pk>/', views.RegistrationRequestDetailView.as_view(), name='request_detail'),
+    path('requests/<int:pk>/approve/', views.RegistrationRequestApproveView.as_view(), name='request_approve'),
+    path('requests/<int:pk>/reject/', views.RegistrationRequestRejectView.as_view(), name='request_reject'),
+    path('requests/<int:pk>/delete/', views.RegistrationRequestDeleteView.as_view(), name='request_delete'),
+    
     # Statistics
     path('stats/', views.StatsView.as_view(), name='stats'),
 ]

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 const Login = () => {
@@ -89,10 +89,10 @@ const Login = () => {
             backgroundColor: '#f6f7f8', 
             borderRadius: '3px',
             fontSize: '12px',
-            color: 'var(--fb-text-light)'
+            color: 'var(--fb-text-light)',
+            textAlign: 'center'
           }}>
-            <strong>Примечание:</strong> Регистрация доступна только через администратора.
-            Если у вас нет аккаунта, обратитесь к владельцу блога.
+            <strong>Нет аккаунта?</strong> <Link to="/register" style={{ fontWeight: 'bold' }}>Подать заявку на регистрацию</Link>
           </div>
         </div>
       </div>

@@ -1,7 +1,7 @@
 import api from './api';
 
 export const authService = {
-
+  // Вход
   login: async (username, password) => {
     const response = await api.post('/auth/login/', { username, password });
     const { access, refresh, user } = response.data;
@@ -13,7 +13,7 @@ export const authService = {
     return response.data;
   },
 
-
+  // Выход
   logout: async () => {
     try {
       const refreshToken = localStorage.getItem('refresh_token');
@@ -27,24 +27,24 @@ export const authService = {
     }
   },
 
-
+  // Получить текущего пользователя
   getCurrentUser: () => {
     const userStr = localStorage.getItem('user');
     return userStr ? JSON.parse(userStr) : null;
   },
 
-
+  // Проверка аутентификации
   isAuthenticated: () => {
     return !!localStorage.getItem('access_token');
   },
 
-
+  // Получить профиль
   getProfile: async () => {
     const response = await api.get('/auth/profile/');
     return response.data;
   },
 
-
+  // Обновить профиль
   updateProfile: async (data) => {
     const formData = new FormData();
     
@@ -60,13 +60,13 @@ export const authService = {
       if (data.profile.avatar) formData.append('profile.avatar', data.profile.avatar);
     }
     
-    const response = await api.put('/auth/profile-update/', formData, {
+    const response = await api.put('/auth/profile/update/', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
     });
     
-
+    // Обновляем данные пользователя в localStorage
     const currentUser = authService.getCurrentUser();
     const updatedUser = { ...currentUser, ...response.data };
     localStorage.setItem('user', JSON.stringify(updatedUser));
@@ -74,9 +74,15 @@ export const authService = {
     return response.data;
   },
 
-
+  // Получить профиль другого пользователя
   getUserProfile: async (username) => {
     const response = await api.get(`/auth/profile/${username}/`);
+    return response.data;
+  },
+
+  // Отправить заявку на регистрацию
+  register: async (data) => {
+    const response = await api.post('/auth/register/', data);
     return response.data;
   },
 };

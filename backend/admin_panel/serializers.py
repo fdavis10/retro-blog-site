@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from users.serializers import UserSerializer, UserCreateSerializer
+from users.models import RegistrationRequest  
 from blog.models import Post, Comment, Like
 
 User = get_user_model()
@@ -38,3 +39,16 @@ class StatsSerializer(serializers.Serializer):
     published_posts = serializers.IntegerField()
     total_comments = serializers.IntegerField()
     total_likes = serializers.IntegerField()
+
+class RegistrationRequestAdminSerializer(serializers.ModelSerializer):
+    """Сериализатор заявки для админа"""
+    processed_by_username = serializers.CharField(source='processed_by.username', read_only=True, allow_null=True)
+    
+    class Meta:
+        model = RegistrationRequest
+        fields = [
+            'id', 'username', 'email', 'first_name', 'last_name',
+            'reason', 'age', 'occupation', 'status', 'created_at',
+            'processed_at', 'processed_by', 'processed_by_username', 'admin_comment'
+        ]
+        read_only_fields = ['id', 'created_at']

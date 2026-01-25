@@ -1,11 +1,14 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from .models import Profile
+from django.contrib.auth.hashers import make_password
+from .models import Profile, RegistrationRequest
 
 User = get_user_model()
 
 
 class ProfileSerializer(serializers.ModelSerializer):
+    """Сериализатор профиля пользователя"""
+    
     class Meta:
         model = Profile
         fields = ['avatar', 'bio', 'birth_date', 'location', 'website']
@@ -19,12 +22,13 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             'id', 'username', 'email', 'first_name', 'last_name',
-            'is_approved', 'is_admin_user', 'is_superuser', 'is_staff',  # ← Добавьте эти два!
-            'created_at', 'profile'
+            'is_approved', 'is_admin_user', 'created_at', 'profile'
         ]
-        read_only_fields = ['id', 'created_at', 'is_approved', 'is_admin_user', 'is_superuser', 'is_staff']
+        read_only_fields = ['id', 'created_at', 'is_approved', 'is_admin_user']
+
 
 class UserCreateSerializer(serializers.ModelSerializer):
+    """Сериализатор для создания пользователя (только для администратора)"""
     password = serializers.CharField(write_only=True, required=True, style={'input_type': 'password'})
     password_confirm = serializers.CharField(write_only=True, required=True, style={'input_type': 'password'})
     
@@ -47,6 +51,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
 
 
 class ProfileUpdateSerializer(serializers.ModelSerializer):
+    """Сериализатор для обновления профиля"""
     
     class Meta:
         model = Profile
@@ -54,6 +59,7 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
 
 
 class UserProfileUpdateSerializer(serializers.ModelSerializer):
+    """Сериализатор для обновления данных пользователя и профиля"""
     profile = ProfileUpdateSerializer(required=False)
     
     class Meta:
@@ -63,12 +69,12 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         profile_data = validated_data.pop('profile', None)
         
-
+        # Обновляем данные пользователя
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
         
-
+        # Обновляем профиль
         if profile_data:
             profile = instance.profile
             for attr, value in profile_data.items():
@@ -79,5 +85,55 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
 
 
 class LoginSerializer(serializers.Serializer):
+    """Сериализатор для входа"""
     username = serializers.CharField()
     password = serializers.CharField(write_only=True, style={'input_type': 'password'})
+
+
+class RegistrationRequestSerializer(serializers.ModelSerializer):
+    """Сериализатор для создания заявки на регистрацию"""
+    password = serializers.CharField(write_only=True, style={'input_type': 'password'})
+    password_confirm = serializers.CharField(write_only=True, style={'input_type': 'password'})
+    
+    class Meta:
+        model = RegistrationRequest
+        fields = [
+            'id', 'username', 'email', 'password', 'password_confirm',
+            'first_name', 'last_name', 'reason', 'age', 'occupation',
+            'status', 'created_at'
+        ]
+        read_only_fields = ['id', 'status', 'created_at']
+    
+    def validate(self, data):
+        if data['password'] != data['password_confirm']:
+            raise serializers.ValidationError({"password": "Пароли не совпадают"})
+        
+        # Проверка уникальности username
+        if User.objects.filter(username=data['username']).exists():
+            raise serializers.ValidationError({"username": "Пользователь с таким именем уже существует"})
+        
+        # Проверка уникальности email
+        if User.objects.filter(email=data['email']).exists():
+            raise serializers.ValidationError({"email": "Пользователь с таким email уже существует"})
+        
+        return data
+    
+    def create(self, validated_data):
+        validated_data.pop('password_confirm')
+        # Хешируем пароль
+        validated_data['password'] = make_password(validated_data['password'])
+        return super().create(validated_data)
+
+
+class RegistrationRequestDetailSerializer(serializers.ModelSerializer):
+    """Сериализатор для просмотра заявки (для админа)"""
+    processed_by_username = serializers.CharField(source='processed_by.username', read_only=True)
+    
+    class Meta:
+        model = RegistrationRequest
+        fields = [
+            'id', 'username', 'email', 'first_name', 'last_name',
+            'reason', 'age', 'occupation', 'status', 'created_at',
+            'processed_at', 'processed_by', 'processed_by_username', 'admin_comment'
+        ]
+        read_only_fields = ['id', 'created_at', 'processed_at', 'processed_by']

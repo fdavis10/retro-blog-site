@@ -3,10 +3,12 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate, get_user_model
-from .models import Profile
+from django.utils import timezone
+from .models import Profile, RegistrationRequest
 from .serializers import (
     UserSerializer, LoginSerializer, ProfileUpdateSerializer,
-    UserProfileUpdateSerializer
+    UserProfileUpdateSerializer, RegistrationRequestSerializer,
+    RegistrationRequestDetailSerializer
 )
 from .permissions import IsApprovedUser, IsOwnerOrReadOnly
 
@@ -14,6 +16,10 @@ User = get_user_model()
 
 
 class LoginView(views.APIView):
+    """
+    Вход пользователя с проверкой одобрения.
+    Возвращает JWT токены.
+    """
     permission_classes = [AllowAny]
     serializer_class = LoginSerializer
 
@@ -38,6 +44,7 @@ class LoginView(views.APIView):
                 status=status.HTTP_403_FORBIDDEN
             )
         
+        # Создаем токены
         refresh = RefreshToken.for_user(user)
         
         return Response({
@@ -48,6 +55,9 @@ class LoginView(views.APIView):
 
 
 class LogoutView(views.APIView):
+    """
+    Выход пользователя (добавление токена в черный список).
+    """
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -61,6 +71,9 @@ class LogoutView(views.APIView):
 
 
 class ProfileView(generics.RetrieveAPIView):
+    """
+    Получение профиля текущего пользователя.
+    """
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated, IsApprovedUser]
 
@@ -69,6 +82,9 @@ class ProfileView(generics.RetrieveAPIView):
 
 
 class UserProfileView(generics.RetrieveAPIView):
+    """
+    Получение профиля пользователя по username.
+    """
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated, IsApprovedUser]
     lookup_field = 'username'
@@ -76,8 +92,29 @@ class UserProfileView(generics.RetrieveAPIView):
 
 
 class ProfileUpdateView(generics.UpdateAPIView):
+    """
+    Обновление профиля текущего пользователя.
+    """
     serializer_class = UserProfileUpdateSerializer
     permission_classes = [IsAuthenticated, IsApprovedUser]
 
     def get_object(self):
         return self.request.user
+
+
+class RegistrationRequestCreateView(generics.CreateAPIView):
+    """
+    Создание заявки на регистрацию (доступно всем).
+    """
+    serializer_class = RegistrationRequestSerializer
+    permission_classes = [AllowAny]
+    
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        
+        return Response({
+            'message': 'Заявка на регистрацию успешно отправлена! Ожидайте одобрения администратора.',
+            'request': serializer.data
+        }, status=status.HTTP_201_CREATED)
