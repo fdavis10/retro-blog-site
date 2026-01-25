@@ -60,7 +60,7 @@ export const authService = {
       if (data.profile.avatar) formData.append('profile.avatar', data.profile.avatar);
     }
     
-    const response = await api.put('/auth/profile/update/', formData, {
+    const response = await api.put('/auth/profile-update/', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },

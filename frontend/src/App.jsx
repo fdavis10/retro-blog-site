@@ -5,6 +5,9 @@ import Login from './pages/Login';
 import Home from './pages/Home';
 import CreatePost from './pages/CreatePost';
 import PostDetail from './pages/PostDetail';
+import Profile from './pages/Profile';
+import EditProfile from './pages/EditProfile';
+import AdminPanel from './pages/AdminPanel';
 import './styles/App.css';
 
 // Компонент для защищенных маршрутов
@@ -69,6 +72,33 @@ function AppRoutes() {
           <PrivateRoute>
             <PostDetail />
           </PrivateRoute>
+        } 
+      />
+
+      <Route 
+        path="/profile/:username" 
+        element={
+          <PrivateRoute>
+            <Profile />
+          </PrivateRoute>
+        } 
+      />
+
+      <Route 
+        path="/profile/edit" 
+        element={
+          <PrivateRoute>
+            <EditProfile />
+          </PrivateRoute>
+        } 
+      />
+
+      <Route 
+        path="/admin" 
+        element={
+          <SuperuserRoute>
+            <AdminPanel />
+          </SuperuserRoute>
         } 
       />
       

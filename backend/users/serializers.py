@@ -12,16 +12,17 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+    """Сериализатор пользователя с профилем"""
     profile = ProfileSerializer(read_only=True)
     
     class Meta:
         model = User
         fields = [
             'id', 'username', 'email', 'first_name', 'last_name',
-            'is_approved', 'is_admin_user', 'created_at', 'profile'
+            'is_approved', 'is_admin_user', 'is_superuser', 'is_staff',  # ← Добавьте эти два!
+            'created_at', 'profile'
         ]
-        read_only_fields = ['id', 'created_at', 'is_approved', 'is_admin_user']
-
+        read_only_fields = ['id', 'created_at', 'is_approved', 'is_admin_user', 'is_superuser', 'is_staff']
 
 class UserCreateSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True, style={'input_type': 'password'})
