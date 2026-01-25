@@ -137,3 +137,9 @@ class RegistrationRequestDetailSerializer(serializers.ModelSerializer):
             'processed_at', 'processed_by', 'processed_by_username', 'admin_comment'
         ]
         read_only_fields = ['id', 'created_at', 'processed_at', 'processed_by']
+
+
+class EmailVerificationSerializer(serializers.Serializer):
+    """Сериализатор для подтверждения email"""
+    request_id = serializers.IntegerField()
+    code = serializers.CharField(max_length=6, min_length=6)

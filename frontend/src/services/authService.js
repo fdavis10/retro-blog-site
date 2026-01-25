@@ -85,4 +85,21 @@ export const authService = {
     const response = await api.post('/auth/register/', data);
     return response.data;
   },
+
+  // Подтвердить email кодом
+  verifyEmail: async (requestId, code) => {
+    const response = await api.post('/auth/verify-email/', {
+      request_id: requestId,
+      code: code
+    });
+    return response.data;
+  },
+
+  // Повторно отправить код
+  resendVerificationCode: async (requestId) => {
+    const response = await api.post('/auth/resend-code/', {
+      request_id: requestId
+    });
+    return response.data;
+  },
 };

@@ -2,6 +2,8 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
+import random
+import string
 
 
 class User(AbstractUser):
@@ -82,6 +84,7 @@ class RegistrationRequest(models.Model):
     Заявка на регистрацию от нового пользователя.
     """
     STATUS_CHOICES = [
+        ('pending_email', 'Ожидает подтверждения email'),
         ('pending', 'Ожидает рассмотрения'),
         ('approved', 'Одобрена'),
         ('rejected', 'Отклонена'),
@@ -102,12 +105,29 @@ class RegistrationRequest(models.Model):
     age = models.PositiveIntegerField(_('возраст'), blank=True, null=True)
     occupation = models.CharField(_('род деятельности'), max_length=200, blank=True)
     
+    # Email валидация
+    email_verification_code = models.CharField(
+        _('код подтверждения email'),
+        max_length=6,
+        blank=True,
+        null=True
+    )
+    email_verification_code_created = models.DateTimeField(
+        _('время создания кода'),
+        blank=True,
+        null=True
+    )
+    email_verified = models.BooleanField(
+        _('email подтвержден'),
+        default=False
+    )
+    
     # Статус заявки
     status = models.CharField(
         _('статус'),
         max_length=20,
         choices=STATUS_CHOICES,
-        default='pending'
+        default='pending_email'
     )
     
     # Даты
@@ -136,3 +156,25 @@ class RegistrationRequest(models.Model):
     
     def __str__(self):
         return f'Заявка от {self.username} ({self.get_status_display()})'
+    
+    def generate_verification_code(self):
+        """Генерирует 6-значный код подтверждения"""
+        self.email_verification_code = ''.join(random.choices(string.digits, k=6))
+        self.email_verification_code_created = timezone.now()
+        self.save()
+        return self.email_verification_code
+    
+    def is_verification_code_valid(self, code):
+        """Проверяет валидность кода (код действителен 15 минут)"""
+        if not self.email_verification_code or not self.email_verification_code_created:
+            return False
+        
+        if self.email_verification_code != code:
+            return False
+        
+        # Проверяем, не истек ли код (15 минут)
+        time_passed = timezone.now() - self.email_verification_code_created
+        if time_passed.total_seconds() > 900:  # 15 минут = 900 секунд
+            return False
+        
+        return True
