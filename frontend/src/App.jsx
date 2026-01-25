@@ -1,0 +1,72 @@
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import Login from './pages/Login';
+import Home from './pages/Home';
+import './styles/App.css';
+
+
+const PrivateRoute = ({ children }) => {
+  const { isAuthenticated, loading } = useAuth();
+
+  if (loading) {
+    return <div className="loading">Загрузка...</div>;
+  }
+
+  return isAuthenticated ? children : <Navigate to="/login" />;
+};
+
+
+const AdminRoute = ({ children }) => {
+  const { isAdmin, loading } = useAuth();
+
+  if (loading) {
+    return <div className="loading">Загрузка...</div>;
+  }
+
+  return isAdmin ? children : <Navigate to="/" />;
+};
+
+
+const SuperuserRoute = ({ children }) => {
+  const { isSuperuser, loading } = useAuth();
+
+  if (loading) {
+    return <div className="loading">Загрузка...</div>;
+  }
+
+  return isSuperuser ? children : <Navigate to="/" />;
+};
+
+function AppRoutes() {
+  return (
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      
+      <Route 
+        path="/" 
+        element={
+          <PrivateRoute>
+            <Home />
+          </PrivateRoute>
+        } 
+      />
+
+      {/* Добавим остальные маршруты на следующих шагах */}
+      
+      <Route path="*" element={<Navigate to="/" />} />
+    </Routes>
+  );
+}
+
+function App() {
+  return (
+    <Router>
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
+    </Router>
+  );
+}
+
+export default App;
