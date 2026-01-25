@@ -8,7 +8,6 @@ import { ru } from 'date-fns/locale';
 const PostCard = ({ post, onLikeToggle }) => {
   const [isLiked, setIsLiked] = useState(post.is_liked);
   const [likesCount, setLikesCount] = useState(post.likes_count);
-  const [showComments, setShowComments] = useState(false);
 
   const handleLike = async () => {
     try {
@@ -52,7 +51,9 @@ const PostCard = ({ post, onLikeToggle }) => {
       </div>
 
       <div className="post-content">
-        <h3 style={{ marginBottom: '10px' }}>{post.title}</h3>
+        <Link to={`/post/${post.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+          <h3 style={{ marginBottom: '10px' }}>{post.title}</h3>
+        </Link>
         <div dangerouslySetInnerHTML={{ __html: post.content }} />
       </div>
 
@@ -98,22 +99,15 @@ const PostCard = ({ post, onLikeToggle }) => {
           <span>Нравится {likesCount > 0 && `(${likesCount})`}</span>
         </button>
 
-        <button 
+        <Link 
+          to={`/post/${post.id}`}
           className="post-action"
-          onClick={() => setShowComments(!showComments)}
+          style={{ textDecoration: 'none' }}
         >
           <FaComment />
           <span>Комментировать {post.comments_count > 0 && `(${post.comments_count})`}</span>
-        </button>
+        </Link>
       </div>
-
-      {showComments && (
-        <div style={{ borderTop: '1px solid var(--fb-border)', padding: '15px' }}>
-          <Link to={`/post/${post.id}`} style={{ fontSize: '12px' }}>
-            Посмотреть все комментарии →
-          </Link>
-        </div>
-      )}
     </div>
   );
 };

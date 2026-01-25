@@ -3,9 +3,11 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './pages/Login';
 import Home from './pages/Home';
+import CreatePost from './pages/CreatePost';
+import PostDetail from './pages/PostDetail';
 import './styles/App.css';
 
-
+// Компонент для защищенных маршрутов
 const PrivateRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
 
@@ -16,7 +18,7 @@ const PrivateRoute = ({ children }) => {
   return isAuthenticated ? children : <Navigate to="/login" />;
 };
 
-
+// Компонент для маршрутов только для админов
 const AdminRoute = ({ children }) => {
   const { isAdmin, loading } = useAuth();
 
@@ -27,7 +29,7 @@ const AdminRoute = ({ children }) => {
   return isAdmin ? children : <Navigate to="/" />;
 };
 
-
+// Компонент для маршрутов только для суперпользователей
 const SuperuserRoute = ({ children }) => {
   const { isSuperuser, loading } = useAuth();
 
@@ -52,7 +54,23 @@ function AppRoutes() {
         } 
       />
 
-      {/* Добавим остальные маршруты на следующих шагах */}
+      <Route 
+        path="/create-post" 
+        element={
+          <AdminRoute>
+            <CreatePost />
+          </AdminRoute>
+        } 
+      />
+
+      <Route 
+        path="/post/:id" 
+        element={
+          <PrivateRoute>
+            <PostDetail />
+          </PrivateRoute>
+        } 
+      />
       
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
