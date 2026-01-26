@@ -93,11 +93,11 @@ WSGI_APPLICATION = 'retro_blog_project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'retro_blog',
-        'USER': 'retro_blog_user',
-        'PASSWORD': 'retro_blog_password',
-        'HOST': 'db',
-        'PORT': '5432',
+        'NAME': os.getenv('DB_NAME', 'retro_blog'),
+        'USER': os.getenv('DB_USER', 'retro_blog_user'),
+        'PASSWORD': os.getenv('DB_PASSWORD', 'Xxx1234xxX'),
+        'HOST': os.getenv('DB_HOST', 'db'),
+        'PORT': os.getenv('DB_PORT', '5432'),
     }
 }
 
@@ -142,7 +142,6 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'static'] if os.path.exists(BASE_DIR / 'static') else []
-
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
@@ -205,11 +204,11 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10MB
 
 # Email settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.yandex.ru')
-EMAIL_PORT = int(os.getenv('EMAIL_PORT', 587))
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.timeweb.ru')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', 465))
 EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'bensoprog@yandex.ru') 
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', 'fhxpqnabpivfxyxf')  
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'support@myposts.ru')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', 'fgA1y#<C^4bhmT')
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
 
 SITE_URL = os.getenv('SITE_URL', 'http://localhost:3000')
