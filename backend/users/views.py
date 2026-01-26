@@ -12,8 +12,10 @@ from .serializers import (
 )
 from .permissions import IsApprovedUser, IsOwnerOrReadOnly
 from .email_utils import send_verification_email
+import logging
 
 User = get_user_model()
+logger = logging.getLogger(__name__)
 
 
 class LoginView(views.APIView):
@@ -101,7 +103,28 @@ class ProfileUpdateView(generics.UpdateAPIView):
 
     def get_object(self):
         return self.request.user
+    
+    def update(self, request, *args, **kwargs):
+        # ИСПРАВЛЕНИЕ: Добавляем логирование для отладки
+        logger.info(f'Profile update request for user: {request.user.username}')
+        logger.info(f'Request data: {request.data}')
+        
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
 
+        if getattr(instance, '_prefetched_objects_cache', None):
+            instance._prefetched_objects_cache = {}
+
+        # ИСПРАВЛЕНИЕ: Логируем ответ
+        response_data = serializer.data
+        logger.info(f'Profile update response: {response_data}')
+        logger.info(f'Response contains username: {response_data.get("username")}')
+        logger.info(f'Response contains is_admin_user: {response_data.get("is_admin_user")}')
+        
+        return Response(response_data)
 
 
 # uncoment later

@@ -41,6 +41,8 @@ export const authService = {
   // Получить профиль
   getProfile: async () => {
     const response = await api.get('/auth/profile/');
+    // ИСПРАВЛЕНИЕ: Обновляем localStorage актуальными данными с сервера
+    localStorage.setItem('user', JSON.stringify(response.data));
     return response.data;
   },
 
@@ -48,16 +50,15 @@ export const authService = {
   updateProfile: async (data) => {
     const formData = new FormData();
     
-    if (data.first_name) formData.append('first_name', data.first_name);
-    if (data.last_name) formData.append('last_name', data.last_name);
-    if (data.email) formData.append('email', data.email);
+    if (data.first_name !== undefined) formData.append('first_name', data.first_name);
+    if (data.last_name !== undefined) formData.append('last_name', data.last_name);
+    if (data.email !== undefined) formData.append('email', data.email);
     
     if (data.profile) {
-      if (data.profile.bio) formData.append('profile.bio', data.profile.bio);
-      if (data.profile.location) formData.append('profile.location', data.profile.location);
-      if (data.profile.website) formData.append('profile.website', data.profile.website);
-      if (data.profile.birth_date) formData.append('profile.birth_date', data.profile.birth_date);
-      // НОВОЕ: добавлена поддержка email_notifications
+      if (data.profile.bio !== undefined) formData.append('profile.bio', data.profile.bio);
+      if (data.profile.location !== undefined) formData.append('profile.location', data.profile.location);
+      if (data.profile.website !== undefined) formData.append('profile.website', data.profile.website);
+      if (data.profile.birth_date !== undefined) formData.append('profile.birth_date', data.profile.birth_date);
       if (data.profile.email_notifications !== undefined) {
         formData.append('profile.email_notifications', data.profile.email_notifications);
       }
@@ -70,12 +71,12 @@ export const authService = {
       },
     });
     
-    // Обновляем данные пользователя в localStorage
-    const currentUser = authService.getCurrentUser();
-    const updatedUser = { ...currentUser, ...response.data };
+    // ИСПРАВЛЕНИЕ: Вместо объединения данных, используем полный ответ от сервера
+    // Это гарантирует, что все поля будут актуальными
+    const updatedUser = response.data;
     localStorage.setItem('user', JSON.stringify(updatedUser));
     
-    return response.data;
+    return updatedUser;
   },
 
   // Получить профиль другого пользователя

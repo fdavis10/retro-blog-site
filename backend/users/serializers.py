@@ -65,7 +65,9 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'email', 'profile']
+        # ИСПРАВЛЕНИЕ: username должен быть в полях, но только для чтения
+        fields = ['username', 'first_name', 'last_name', 'email', 'profile']
+        read_only_fields = ['username']  # username нельзя изменять
     
     def update(self, instance, validated_data):
         profile_data = validated_data.pop('profile', None)
@@ -82,7 +84,21 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
                 setattr(profile, attr, value)
             profile.save()
         
+        # Важно: перезагружаем instance чтобы получить свежие данные профиля
+        instance.refresh_from_db()
+        
         return instance
+    
+    def to_representation(self, instance):
+        """
+        КРИТИЧЕСКИ ВАЖНО: возвращаем полные данные пользователя
+        включая все поля, которые нужны фронтенду для авторизации
+        """
+        # Принудительно перезагружаем связанный профиль
+        if hasattr(instance, 'profile'):
+            instance.profile.refresh_from_db()
+        
+        return UserSerializer(instance).data
 
 
 class LoginSerializer(serializers.Serializer):

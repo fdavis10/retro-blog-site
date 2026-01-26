@@ -18,13 +18,26 @@ export const AuthProvider = ({ children }) => {
   useEffect(() => {
     const savedUser = authService.getCurrentUser();
     if (savedUser) {
-      setUser(savedUser);
+      // ИСПРАВЛЕНИЕ: Проверяем валидность данных при загрузке
+      if (savedUser.username && savedUser.id) {
+        setUser(savedUser);
+      } else {
+        console.error('Invalid user data in localStorage:', savedUser);
+        // Очищаем невалидные данные
+        authService.logout();
+      }
     }
     setLoading(false);
   }, []);
 
   const login = async (username, password) => {
     const data = await authService.login(username, password);
+    
+    // ИСПРАВЛЕНИЕ: Проверяем данные перед установкой
+    if (!data.user.username || !data.user.id) {
+      throw new Error('Invalid user data received from server');
+    }
+    
     setUser(data.user);
     return data;
   };
@@ -35,6 +48,26 @@ export const AuthProvider = ({ children }) => {
   };
 
   const updateUser = (userData) => {
+    // ИСПРАВЛЕНИЕ: Проверяем что получили валидные данные
+    if (!userData) {
+      console.error('updateUser called with null/undefined');
+      return;
+    }
+    
+    if (!userData.username || !userData.id) {
+      console.error('updateUser called with invalid data:', userData);
+      return;
+    }
+    
+    // ИСПРАВЛЕНИЕ: Логируем для отладки
+    console.log('Updating user in context:', {
+      username: userData.username,
+      id: userData.id,
+      is_admin_user: userData.is_admin_user,
+      is_staff: userData.is_staff,
+      is_superuser: userData.is_superuser
+    });
+    
     setUser(userData);
     localStorage.setItem('user', JSON.stringify(userData));
   };

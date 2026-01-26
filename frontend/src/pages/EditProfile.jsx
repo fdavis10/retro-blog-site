@@ -86,19 +86,47 @@ const EditProfile = () => {
       }
 
       const updatedUser = await authService.updateProfile(updateData);
+      
+      // ИСПРАВЛЕНИЕ: Проверяем что получили все необходимые данные
+      console.log('Updated user data:', updatedUser);
+      
+      if (!updatedUser.username) {
+        console.error('Missing username in response:', updatedUser);
+        throw new Error('Получены неполные данные пользователя (отсутствует username)');
+      }
+      
+      if (updatedUser.is_admin_user === undefined || updatedUser.is_staff === undefined) {
+        console.error('Missing admin flags in response:', updatedUser);
+        throw new Error('Получены неполные данные пользователя (отсутствуют права)');
+      }
+      
+      // Обновляем контекст
       updateUser(updatedUser);
       setSuccess('Профиль успешно обновлен!');
       
+      // ИСПРАВЛЕНИЕ: Используем username из обновленных данных
       setTimeout(() => {
-        navigate(`/profile/${user.username}`);
+        navigate(`/profile/${updatedUser.username}`);
       }, 1500);
     } catch (err) {
-      setError(err.response?.data?.error || 'Ошибка обновления профиля');
-      console.error(err);
+      setError(err.response?.data?.error || err.message || 'Ошибка обновления профиля');
+      console.error('Update profile error:', err);
     } finally {
       setLoading(false);
     }
   };
+
+  // ИСПРАВЛЕНИЕ: Защита от отсутствия user
+  if (!user) {
+    return (
+      <>
+        <Header />
+        <div className="container" style={{ paddingTop: '20px' }}>
+          <div className="loading">Загрузка...</div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
