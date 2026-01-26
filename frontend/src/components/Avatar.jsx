@@ -36,7 +36,7 @@ const Avatar = ({ user, size = 'default', className = '' }) => {
     return user.username.substring(0, 2).toUpperCase();
   };
   
-  // Генерируем цвет на основе username (чтобы у каждого был свой цвет)
+  // Генерируем цвет на основе username
   const getColor = () => {
     const colors = [
       '#3b5998', // Facebook blue
@@ -51,7 +51,6 @@ const Avatar = ({ user, size = 'default', className = '' }) => {
       '#955251', // Marsala
     ];
     
-    // Простой хеш из username для выбора цвета
     let hash = 0;
     for (let i = 0; i < user.username.length; i++) {
       hash = user.username.charCodeAt(i) + ((hash << 5) - hash);
@@ -78,7 +77,7 @@ const Avatar = ({ user, size = 'default', className = '' }) => {
         flexShrink: 0
       }}
     >
-      {getInitials()}
+      {getInitials()}  {/* ← ВОТ ТУТ НУЖНО ВЫЗВАТЬ ФУНКЦИЮ! */}
     </div>
   );
 };
