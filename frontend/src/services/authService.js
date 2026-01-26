@@ -57,6 +57,10 @@ export const authService = {
       if (data.profile.location) formData.append('profile.location', data.profile.location);
       if (data.profile.website) formData.append('profile.website', data.profile.website);
       if (data.profile.birth_date) formData.append('profile.birth_date', data.profile.birth_date);
+      // НОВОЕ: добавлена поддержка email_notifications
+      if (data.profile.email_notifications !== undefined) {
+        formData.append('profile.email_notifications', data.profile.email_notifications);
+      }
       if (data.profile.avatar) formData.append('profile.avatar', data.profile.avatar);
     }
     

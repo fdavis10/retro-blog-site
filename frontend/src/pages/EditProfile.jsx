@@ -16,6 +16,7 @@ const EditProfile = () => {
     location: '',
     website: '',
     birth_date: '',
+    email_notifications: true, // Добавлено
   });
   const [avatar, setAvatar] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState(null);
@@ -33,15 +34,17 @@ const EditProfile = () => {
         location: user.profile?.location || '',
         website: user.profile?.website || '',
         birth_date: user.profile?.birth_date || '',
+        email_notifications: user.profile?.email_notifications ?? true, // Добавлено
       });
       setAvatarPreview(user.profile?.avatar);
     }
   }, [user]);
 
   const handleChange = (e) => {
+    const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value,
+      [e.target.name]: value,
     });
   };
 
@@ -73,6 +76,7 @@ const EditProfile = () => {
           location: formData.location,
           website: formData.website,
           birth_date: formData.birth_date || null,
+          email_notifications: formData.email_notifications, // Добавлено
         },
       };
 
@@ -224,6 +228,47 @@ const EditProfile = () => {
                     value={formData.birth_date}
                     onChange={handleChange}
                   />
+                </div>
+
+                {/* Email уведомления - НОВОЕ */}
+                <div className="form-group">
+                  <div style={{ 
+                    padding: '15px', 
+                    backgroundColor: 'var(--fb-hover)', 
+                    borderRadius: '3px',
+                    border: '1px solid var(--fb-border)'
+                  }}>
+                    <label style={{ 
+                      display: 'flex', 
+                      alignItems: 'flex-start', 
+                      cursor: 'pointer',
+                      margin: 0
+                    }}>
+                      <input
+                        type="checkbox"
+                        name="email_notifications"
+                        checked={formData.email_notifications}
+                        onChange={handleChange}
+                        style={{ 
+                          marginRight: '10px',
+                          marginTop: '2px',
+                          cursor: 'pointer'
+                        }}
+                      />
+                      <div>
+                        <div className="form-label" style={{ marginBottom: '5px' }}>
+                          📧 Email-уведомления о новых постах
+                        </div>
+                        <div style={{ 
+                          fontSize: '11px', 
+                          color: 'var(--fb-text-light)',
+                          lineHeight: '1.4'
+                        }}>
+                          Получать уведомления на email при публикации новых постов в блоге
+                        </div>
+                      </div>
+                    </label>
+                  </div>
                 </div>
 
                 {/* Кнопки */}

@@ -211,3 +211,5 @@ EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'bensoprog@yandex.ru') 
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', 'fhxpqnabpivfxyxf')  
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
+
+SITE_URL = os.getenv('SITE_URL', 'http://localhost:3000')
