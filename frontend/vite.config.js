@@ -18,13 +18,3 @@ export default defineConfig({
   }
 })
 
-
-user = User.objects.create_user(
-    username='admin_test',
-    email='admin_test@example.com',
-    password='admin123',
-    is_approved=True,
-    is_admin_user=True,
-    is_staff=True,
-    is_superuser=True
-)

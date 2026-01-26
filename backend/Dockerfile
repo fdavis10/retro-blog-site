@@ -13,7 +13,6 @@ RUN apt-get update && apt-get install -y \
     libpq-dev \
     && rm -rf /var/lib/apt/lists/*
 
-
 COPY requirements.txt /app/
 
 RUN pip install --upgrade pip && \
@@ -25,4 +24,4 @@ RUN mkdir -p /app/staticfiles /app/media
 
 EXPOSE 8000
 
-CMD ["gunicorn", "retro_blog_project.wsgi:application", "--bind", "0.0.0.0:8000"]
+CMD ["gunicorn", "retro_blog_project.wsgi:application", "--bind", "0.0.0.0:8000", "--timeout", "120", "--workers", "3", "--worker-class", "sync"]
