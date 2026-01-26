@@ -93,11 +93,11 @@ WSGI_APPLICATION = 'retro_blog_project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DB_NAME', 'retro_blog'),
-        'USER': os.getenv('DB_USER', 'local_db_rb'),
-        'PASSWORD': os.getenv('DB_PASSWORD', '1234'),
-        'HOST': os.getenv('DB_HOST', 'localhost'),
-        'PORT': os.getenv('DB_PORT', '5432'),
+        'NAME': 'retro_blog',
+        'USER': 'retro_blog_user',
+        'PASSWORD': 'retro_blog_password',
+        'HOST': 'db',
+        'PORT': '5432',
     }
 }
 

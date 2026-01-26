@@ -38,7 +38,7 @@ services:
     ports:
       - "8000:8000"
     env_file:
-      - ./backend/.env
+      - .env
     environment:
       - DEBUG=False
       - DB_HOST=db
