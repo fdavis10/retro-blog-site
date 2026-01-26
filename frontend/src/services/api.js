@@ -1,6 +1,7 @@
 import axios from 'axios';
 
-const API_URL = 'http://localhost:8000/api';
+// API URL из переменных окружения или localhost по умолчанию
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
 
 const api = axios.create({
   baseURL: API_URL,
@@ -9,7 +10,7 @@ const api = axios.create({
   },
 });
 
-
+// Interceptor для добавления токена к запросам
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('access_token');
@@ -23,13 +24,13 @@ api.interceptors.request.use(
   }
 );
 
-
+// Interceptor для обработки ошибок и обновления токена
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
 
-
+    // Если получили 401 и это не повторный запрос
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
