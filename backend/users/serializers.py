@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.contrib.auth.hashers import make_password
 from .models import Profile, RegistrationRequest
+import json
 
 User = get_user_model()
 
@@ -60,17 +61,19 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
 
 
 class UserProfileUpdateSerializer(serializers.ModelSerializer):
-    """Сериализатор для обновления данных пользователя и профиля"""
-    profile = ProfileUpdateSerializer(required=False)
+    """Сериализатор для обновления данных пользователя и профиля - ИСПРАВЛЕНО"""
+    profile = serializers.CharField(required=False, allow_blank=True)
+    avatar = serializers.ImageField(required=False, allow_null=True)
     
     class Meta:
         model = User
-        # ИСПРАВЛЕНИЕ: username должен быть в полях, но только для чтения
-        fields = ['username', 'first_name', 'last_name', 'email', 'profile']
-        read_only_fields = ['username']  # username нельзя изменять
+        fields = ['username', 'first_name', 'last_name', 'email', 'profile', 'avatar']
+        read_only_fields = ['username']
     
     def update(self, instance, validated_data):
-        profile_data = validated_data.pop('profile', None)
+        # Извлекаем данные профиля и аватар
+        profile_json = validated_data.pop('profile', None)
+        avatar = validated_data.pop('avatar', None)
         
         # Обновляем данные пользователя
         for attr, value in validated_data.items():
@@ -78,23 +81,45 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
         instance.save()
         
         # Обновляем профиль
-        if profile_data:
-            profile = instance.profile
-            for attr, value in profile_data.items():
-                setattr(profile, attr, value)
-            profile.save()
+        profile = instance.profile
         
-        # Важно: перезагружаем instance чтобы получить свежие данные профиля
+        # Парсим JSON с данными профиля
+        if profile_json:
+            try:
+                profile_data = json.loads(profile_json)
+                print(f"📝 Updating profile with data: {profile_data}")
+                
+                for attr, value in profile_data.items():
+                    if hasattr(profile, attr):
+                        # Для полей, которые могут быть пустыми
+                        if attr in ['location', 'website', 'bio']:
+                            setattr(profile, attr, value if value else '')
+                        # Для даты рождения: пустая строка или None -> None
+                        elif attr == 'birth_date':
+                            setattr(profile, attr, value if value else None)
+                        # Для остальных полей (например, email_notifications)
+                        else:
+                            setattr(profile, attr, value)
+                        print(f"  ✓ Set {attr} = {value}")
+            except (json.JSONDecodeError, TypeError) as e:
+                print(f"❌ Error parsing profile JSON: {e}")
+                raise serializers.ValidationError(f"Invalid profile data: {e}")
+        
+        # Обновляем аватар отдельно
+        if avatar:
+            profile.avatar = avatar
+            print(f"  ✓ Updated avatar")
+        
+        profile.save()
+        print(f"✅ Profile saved successfully")
+        
+        # Перезагружаем instance чтобы получить свежие данные
         instance.refresh_from_db()
         
         return instance
     
     def to_representation(self, instance):
-        """
-        КРИТИЧЕСКИ ВАЖНО: возвращаем полные данные пользователя
-        включая все поля, которые нужны фронтенду для авторизации
-        """
-        # Принудительно перезагружаем связанный профиль
+        """Возвращаем полные данные пользователя с профилем"""
         if hasattr(instance, 'profile'):
             instance.profile.refresh_from_db()
         

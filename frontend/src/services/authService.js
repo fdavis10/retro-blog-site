@@ -41,29 +41,55 @@ export const authService = {
   // Получить профиль
   getProfile: async () => {
     const response = await api.get('/auth/profile/');
-    // ИСПРАВЛЕНИЕ: Обновляем localStorage актуальными данными с сервера
     localStorage.setItem('user', JSON.stringify(response.data));
     return response.data;
   },
 
-  // Обновить профиль
+  // Обновить профиль - ИСПРАВЛЕНО!
   updateProfile: async (data) => {
     const formData = new FormData();
     
+    // Добавляем базовые поля пользователя
     if (data.first_name !== undefined) formData.append('first_name', data.first_name);
     if (data.last_name !== undefined) formData.append('last_name', data.last_name);
     if (data.email !== undefined) formData.append('email', data.email);
     
+    // ИСПРАВЛЕНИЕ: Правильное формирование вложенных данных профиля
     if (data.profile) {
-      if (data.profile.bio !== undefined) formData.append('profile.bio', data.profile.bio);
-      if (data.profile.location !== undefined) formData.append('profile.location', data.profile.location);
-      if (data.profile.website !== undefined) formData.append('profile.website', data.profile.website);
-      if (data.profile.birth_date !== undefined) formData.append('profile.birth_date', data.profile.birth_date);
-      if (data.profile.email_notifications !== undefined) {
-        formData.append('profile.email_notifications', data.profile.email_notifications);
+      // Для вложенных полей используем JSON-строку
+      const profileData = {};
+      
+      // ВАЖНО: Пустые строки преобразуем в null для необязательных полей
+      if (data.profile.bio !== undefined) {
+        profileData.bio = data.profile.bio || '';
       }
-      if (data.profile.avatar) formData.append('profile.avatar', data.profile.avatar);
+      if (data.profile.location !== undefined) {
+        profileData.location = data.profile.location || '';
+      }
+      if (data.profile.website !== undefined) {
+        profileData.website = data.profile.website || '';
+      }
+      if (data.profile.birth_date !== undefined) {
+        // Для даты: если пустая строка, отправляем null
+        profileData.birth_date = data.profile.birth_date || null;
+      }
+      if (data.profile.email_notifications !== undefined) {
+        profileData.email_notifications = data.profile.email_notifications;
+      }
+      
+      // Добавляем JSON-строку с данными профиля
+      formData.append('profile', JSON.stringify(profileData));
+      
+      // Аватар добавляем отдельно как файл
+      if (data.profile.avatar && data.profile.avatar instanceof File) {
+        formData.append('avatar', data.profile.avatar);
+      }
     }
+    
+    console.log('Sending profile update...', {
+      has_avatar: formData.has('avatar'),
+      profile_data: JSON.parse(formData.get('profile'))
+    });
     
     const response = await api.put('/auth/profile/update/', formData, {
       headers: {
@@ -71,8 +97,6 @@ export const authService = {
       },
     });
     
-    // ИСПРАВЛЕНИЕ: Вместо объединения данных, используем полный ответ от сервера
-    // Это гарантирует, что все поля будут актуальными
     const updatedUser = response.data;
     localStorage.setItem('user', JSON.stringify(updatedUser));
     

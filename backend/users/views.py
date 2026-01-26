@@ -11,7 +11,7 @@ from .serializers import (
     RegistrationRequestDetailSerializer, EmailVerificationSerializer
 )
 from .permissions import IsApprovedUser, IsOwnerOrReadOnly
-from .email_utils import send_verification_email
+from .email_utils_old import send_verification_email
 import logging
 
 User = get_user_model()

@@ -61,60 +61,77 @@ const EditProfile = () => {
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError('');
-    setSuccess('');
-    setLoading(true);
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError('');
+  setSuccess('');
+  setLoading(true);
 
-    try {
-      const updateData = {
-        first_name: formData.first_name,
-        last_name: formData.last_name,
-        email: formData.email,
-        profile: {
-          bio: formData.bio,
-          location: formData.location,
-          website: formData.website,
-          birth_date: formData.birth_date || null,
-          email_notifications: formData.email_notifications,
-        },
-      };
+  try {
+    const updateData = {
+      first_name: formData.first_name,
+      last_name: formData.last_name,
+      email: formData.email,
+      profile: {
+        bio: formData.bio,
+        location: formData.location,
+        website: formData.website,
+        birth_date: formData.birth_date || null,
+        email_notifications: formData.email_notifications,
+      },
+    };
 
-      if (avatar) {
-        updateData.profile.avatar = avatar;
-      }
-
-      const updatedUser = await authService.updateProfile(updateData);
-      
-      // ИСПРАВЛЕНИЕ: Проверяем что получили все необходимые данные
-      console.log('Updated user data:', updatedUser);
-      
-      if (!updatedUser.username) {
-        console.error('Missing username in response:', updatedUser);
-        throw new Error('Получены неполные данные пользователя (отсутствует username)');
-      }
-      
-      if (updatedUser.is_admin_user === undefined || updatedUser.is_staff === undefined) {
-        console.error('Missing admin flags in response:', updatedUser);
-        throw new Error('Получены неполные данные пользователя (отсутствуют права)');
-      }
-      
-      // Обновляем контекст
-      updateUser(updatedUser);
-      setSuccess('Профиль успешно обновлен!');
-      
-      // ИСПРАВЛЕНИЕ: Используем username из обновленных данных
-      setTimeout(() => {
-        navigate(`/profile/${updatedUser.username}`);
-      }, 1500);
-    } catch (err) {
-      setError(err.response?.data?.error || err.message || 'Ошибка обновления профиля');
-      console.error('Update profile error:', err);
-    } finally {
-      setLoading(false);
+    if (avatar) {
+      updateData.profile.avatar = avatar;
     }
-  };
+
+    // ОТЛАДКА: Выводим данные перед отправкой
+    console.log('📤 Sending update data:', {
+      first_name: updateData.first_name,
+      last_name: updateData.last_name,
+      email: updateData.email,
+      profile: {
+        bio: updateData.profile.bio,
+        location: updateData.profile.location,
+        website: updateData.profile.website,
+        birth_date: updateData.profile.birth_date,
+        email_notifications: updateData.profile.email_notifications,
+        has_avatar: !!updateData.profile.avatar
+      }
+    });
+
+    const updatedUser = await authService.updateProfile(updateData);
+    
+    console.log('✅ Updated user data:', updatedUser);
+    
+    if (!updatedUser.username) {
+      console.error('Missing username in response:', updatedUser);
+      throw new Error('Получены неполные данные пользователя (отсутствует username)');
+    }
+    
+    if (updatedUser.is_admin_user === undefined || updatedUser.is_staff === undefined) {
+      console.error('Missing admin flags in response:', updatedUser);
+      throw new Error('Получены неполные данные пользователя (отсутствуют права)');
+    }
+    
+    updateUser(updatedUser);
+    setSuccess('Профиль успешно обновлен!');
+    
+    setTimeout(() => {
+      navigate(`/profile/${updatedUser.username}`);
+    }, 1500);
+  } catch (err) {
+    setError(err.response?.data?.error || err.message || 'Ошибка обновления профиля');
+    console.error('Update profile error:', err);
+    // ДОПОЛНИТЕЛЬНАЯ ОТЛАДКА
+    if (err.response) {
+      console.error('Response data:', err.response.data);
+      console.error('Response status:', err.response.status);
+    }
+  } finally {
+    setLoading(false);
+  }
+};
 
   // ИСПРАВЛЕНИЕ: Защита от отсутствия user
   if (!user) {
