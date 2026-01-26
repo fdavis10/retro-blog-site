@@ -104,10 +104,12 @@ class ProfileUpdateView(generics.UpdateAPIView):
 
 
 
+# uncoment later
+
 class RegistrationRequestCreateView(generics.CreateAPIView):
     """
     Создание заявки на регистрацию (доступно всем).
-    БЕЗ email верификации - сразу создаётся пользователь.
+    Отправляет код подтверждения на email.
     """
     serializer_class = RegistrationRequestSerializer
     permission_classes = [AllowAny]
@@ -116,54 +118,29 @@ class RegistrationRequestCreateView(generics.CreateAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         
-        # Сохраняем заявку со статусом 'pending' (без email верификации)
-        registration_request = serializer.save(
-            status='pending',  # Сразу ставим pending
-            email_verified=True  # Помечаем email как подтверждённый
+        # Сохраняем заявку со статусом 'pending_email'
+        registration_request = serializer.save()
+        
+        # Генерируем и отправляем код подтверждения
+        code = registration_request.generate_verification_code()
+        email_sent = send_verification_email(
+            registration_request.email,
+            code,
+            registration_request.username
         )
         
+        if not email_sent:
+            # Если письмо не отправилось, удаляем заявку
+            registration_request.delete()
+            return Response({
+                'error': 'Ошибка отправки email. Проверьте правильность адреса и попробуйте снова.'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
         return Response({
-            'message': 'Заявка на регистрацию успешно отправлена! Ожидайте одобрения администратором.',
+            'message': 'Код подтверждения отправлен на ваш email. Проверьте почту и введите код.',
             'request_id': registration_request.id,
             'email': registration_request.email
         }, status=status.HTTP_201_CREATED)
-
-
-# class RegistrationRequestCreateView(generics.CreateAPIView):
-#     """
-#     Создание заявки на регистрацию (доступно всем).
-#     Отправляет код подтверждения на email.
-#     """
-#     serializer_class = RegistrationRequestSerializer
-#     permission_classes = [AllowAny]
-    
-#     def create(self, request, *args, **kwargs):
-#         serializer = self.get_serializer(data=request.data)
-#         serializer.is_valid(raise_exception=True)
-        
-#         # Сохраняем заявку со статусом 'pending_email'
-#         registration_request = serializer.save()
-        
-#         # Генерируем и отправляем код подтверждения
-#         code = registration_request.generate_verification_code()
-#         email_sent = send_verification_email(
-#             registration_request.email,
-#             code,
-#             registration_request.username
-#         )
-        
-#         if not email_sent:
-#             # Если письмо не отправилось, удаляем заявку
-#             registration_request.delete()
-#             return Response({
-#                 'error': 'Ошибка отправки email. Проверьте правильность адреса и попробуйте снова.'
-#             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
-#         return Response({
-#             'message': 'Код подтверждения отправлен на ваш email. Проверьте почту и введите код.',
-#             'request_id': registration_request.id,
-#             'email': registration_request.email
-#         }, status=status.HTTP_201_CREATED)
 
 
 class EmailVerificationView(views.APIView):
