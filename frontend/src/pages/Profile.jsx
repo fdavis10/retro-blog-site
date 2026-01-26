@@ -4,6 +4,7 @@ import { FaEdit, FaCog } from 'react-icons/fa';
 import { authService } from '../services/authService';
 import { useAuth } from '../context/AuthContext';
 import Header from '../components/Header';
+import Avatar from '../components/Avatar';
 
 const Profile = () => {
   const { username } = useParams();
@@ -60,26 +61,11 @@ const Profile = () => {
       <Header />
       <div className="container" style={{ paddingTop: '20px', paddingBottom: '20px' }}>
         <div style={{ maxWidth: '700px', margin: '0 auto' }}>
-          {/* Профиль */}
           <div className="card">
             <div className="card-body">
               <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
-                {/* Аватар */}
-                <div>
-                  <img 
-                    src={user.profile?.avatar || '/default-avatar.png'} 
-                    alt={user.username}
-                    style={{ 
-                      width: '120px', 
-                      height: '120px', 
-                      borderRadius: '3px',
-                      border: '1px solid var(--fb-border)',
-                      objectFit: 'cover'
-                    }}
-                  />
-                </div>
+                <Avatar user={user} size="xl" />
 
-                {/* Информация */}
                 <div style={{ flex: 1 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
                     <div>
@@ -101,7 +87,6 @@ const Profile = () => {
                     )}
                   </div>
 
-                  {/* Био */}
                   {user.profile?.bio && (
                     <div style={{ 
                       padding: '10px', 
@@ -114,7 +99,6 @@ const Profile = () => {
                     </div>
                   )}
 
-                  {/* Дополнительная информация */}
                   <div style={{ fontSize: '13px', color: 'var(--fb-text)' }}>
                     {user.profile?.location && (
                       <div style={{ marginBottom: '5px' }}>
@@ -148,7 +132,6 @@ const Profile = () => {
                     </div>
                   </div>
 
-                  {/* Статус */}
                   {user.is_admin_user && (
                     <div style={{ 
                       marginTop: '10px',
@@ -167,8 +150,6 @@ const Profile = () => {
               </div>
             </div>
           </div>
-
-          {/* Можно добавить посты пользователя позже */}
         </div>
       </div>
     </>

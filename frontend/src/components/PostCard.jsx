@@ -4,6 +4,7 @@ import { FaThumbsUp, FaComment } from 'react-icons/fa';
 import { blogService } from '../services/blogService';
 import { formatDistanceToNow } from 'date-fns';
 import { ru } from 'date-fns/locale';
+import Avatar from './Avatar';
 
 const PostCard = ({ post, onLikeToggle }) => {
   const [isLiked, setIsLiked] = useState(post.is_liked);
@@ -34,11 +35,7 @@ const PostCard = ({ post, onLikeToggle }) => {
   return (
     <div className="card post">
       <div className="post-header">
-        <img 
-          src={post.author.profile?.avatar || '/default-avatar.png'} 
-          alt={post.author.username}
-          className="avatar"
-        />
+        <Avatar user={post.author} size="default" />
         <div className="post-author-info">
           <Link to={`/profile/${post.author.username}`} className="post-author-name">
             {post.author.first_name && post.author.last_name 

@@ -4,6 +4,7 @@ import { FaThumbsUp, FaComment, FaEdit, FaTrash } from 'react-icons/fa';
 import { blogService } from '../services/blogService';
 import { useAuth } from '../context/AuthContext';
 import Header from '../components/Header';
+import Avatar from '../components/Avatar';
 import { formatDistanceToNow } from 'date-fns';
 import { ru } from 'date-fns/locale';
 
@@ -37,15 +38,14 @@ const PostDetail = () => {
   };
 
   const loadComments = async () => {
-  try {
-    const data = await blogService.getComments(id);
-    // Проверяем что data это массив
-    setComments(Array.isArray(data) ? data : (data.results || []));
-  } catch (err) {
-    console.error(err);
-    setComments([]); // Устанавливаем пустой массив при ошибке
-  }
-};
+    try {
+      const data = await blogService.getComments(id);
+      setComments(Array.isArray(data) ? data : (data.results || []));
+    } catch (err) {
+      console.error(err);
+      setComments([]);
+    }
+  };
 
   const handleLike = async () => {
     try {
@@ -137,21 +137,15 @@ const PostDetail = () => {
       <Header />
       <div className="container" style={{ paddingTop: '20px', paddingBottom: '20px' }}>
         <div style={{ maxWidth: '700px', margin: '0 auto' }}>
-          {/* Кнопка назад */}
           <div style={{ marginBottom: '15px' }}>
             <Link to="/" className="btn btn-secondary btn-sm">
               ← Назад к ленте
             </Link>
           </div>
 
-          {/* Пост */}
           <div className="card post">
             <div className="post-header">
-              <img 
-                src={post.author.profile?.avatar || '/default-avatar.png'} 
-                alt={post.author.username}
-                className="avatar"
-              />
+              <Avatar user={post.author} size="default" />
               <div className="post-author-info">
                 <Link to={`/profile/${post.author.username}`} className="post-author-name">
                   {post.author.first_name && post.author.last_name 
@@ -162,7 +156,6 @@ const PostDetail = () => {
                 <div className="post-date">{formatDate(post.created_at)}</div>
               </div>
 
-              {/* Кнопки редактирования/удаления */}
               {isAdmin && post.author.id === user.id && (
                 <div style={{ marginLeft: 'auto', display: 'flex', gap: '5px' }}>
                   <Link 
@@ -186,7 +179,6 @@ const PostDetail = () => {
               <div dangerouslySetInnerHTML={{ __html: post.content }} />
             </div>
 
-            {/* Изображения */}
             {post.images && post.images.length > 0 && (
               <div>
                 {post.images.map((image) => (
@@ -200,7 +192,6 @@ const PostDetail = () => {
               </div>
             )}
 
-            {/* Вложения */}
             {post.attachments && post.attachments.length > 0 && (
               <div style={{ padding: '15px', borderTop: '1px solid var(--fb-border)' }}>
                 <div style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '8px', color: 'var(--fb-text-light)' }}>
@@ -221,7 +212,6 @@ const PostDetail = () => {
               </div>
             )}
 
-            {/* Лайки и комментарии */}
             <div className="post-actions">
               <button 
                 className={`post-action ${post.is_liked ? 'active' : ''}`}
@@ -238,14 +228,12 @@ const PostDetail = () => {
             </div>
           </div>
 
-          {/* Комментарии */}
           <div className="card" style={{ marginTop: '10px' }}>
             <div className="card-header">
               Комментарии ({comments.length})
             </div>
             
             <div className="card-body">
-              {/* Форма добавления комментария */}
               <form onSubmit={handleAddComment} style={{ marginBottom: '20px' }}>
                 <div className="form-group">
                   <textarea
@@ -265,7 +253,6 @@ const PostDetail = () => {
                 </button>
               </form>
 
-              {/* Список комментариев */}
               {comments.length === 0 ? (
                 <p style={{ color: 'var(--fb-text-light)', fontSize: '13px', textAlign: 'center' }}>
                   Пока нет комментариев. Будьте первым!
@@ -274,11 +261,7 @@ const PostDetail = () => {
                 <div>
                   {comments.map((comment) => (
                     <div key={comment.id} className="comment">
-                      <img 
-                        src={comment.author.profile?.avatar || '/default-avatar.png'} 
-                        alt={comment.author.username}
-                        className="avatar avatar-sm"
-                      />
+                      <Avatar user={comment.author} size="sm" />
                       <div className="comment-bubble">
                         <div className="comment-author">
                           <Link to={`/profile/${comment.author.username}`}>

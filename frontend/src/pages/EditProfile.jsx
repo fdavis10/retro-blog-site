@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { authService } from '../services/authService';
 import { useAuth } from '../context/AuthContext';
 import Header from '../components/Header';
+import Avatar from '../components/Avatar';
 
 const EditProfile = () => {
   const { user, updateUser } = useAuth();
@@ -16,7 +17,7 @@ const EditProfile = () => {
     location: '',
     website: '',
     birth_date: '',
-    email_notifications: true, // Добавлено
+    email_notifications: true,
   });
   const [avatar, setAvatar] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState(null);
@@ -34,7 +35,7 @@ const EditProfile = () => {
         location: user.profile?.location || '',
         website: user.profile?.website || '',
         birth_date: user.profile?.birth_date || '',
-        email_notifications: user.profile?.email_notifications ?? true, // Добавлено
+        email_notifications: user.profile?.email_notifications ?? true,
       });
       setAvatarPreview(user.profile?.avatar);
     }
@@ -76,7 +77,7 @@ const EditProfile = () => {
           location: formData.location,
           website: formData.website,
           birth_date: formData.birth_date || null,
-          email_notifications: formData.email_notifications, // Добавлено
+          email_notifications: formData.email_notifications,
         },
       };
 
@@ -114,21 +115,27 @@ const EditProfile = () => {
                 {error && <div className="error">{error}</div>}
                 {success && <div className="success">{success}</div>}
 
-                {/* Аватар */}
                 <div className="form-group">
                   <label className="form-label">Аватар</label>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-                    <img 
-                      src={avatarPreview || '/default-avatar.png'} 
-                      alt="Avatar preview"
-                      style={{ 
-                        width: '80px', 
-                        height: '80px', 
-                        borderRadius: '3px',
-                        border: '1px solid var(--fb-border)',
-                        objectFit: 'cover'
-                      }}
-                    />
+                    {avatarPreview ? (
+                      <img 
+                        src={avatarPreview}
+                        alt="Avatar preview"
+                        style={{ 
+                          width: '80px', 
+                          height: '80px', 
+                          borderRadius: '3px',
+                          border: '1px solid var(--fb-border)',
+                          objectFit: 'cover'
+                        }}
+                      />
+                    ) : (
+                      <Avatar 
+                        user={user} 
+                        size="lg"
+                      />
+                    )}
                     <input
                       type="file"
                       accept="image/*"
@@ -139,7 +146,6 @@ const EditProfile = () => {
                   </div>
                 </div>
 
-                {/* Имя */}
                 <div className="form-group">
                   <label className="form-label">Имя</label>
                   <input
@@ -151,7 +157,6 @@ const EditProfile = () => {
                   />
                 </div>
 
-                {/* Фамилия */}
                 <div className="form-group">
                   <label className="form-label">Фамилия</label>
                   <input
@@ -163,7 +168,6 @@ const EditProfile = () => {
                   />
                 </div>
 
-                {/* Email */}
                 <div className="form-group">
                   <label className="form-label">Email</label>
                   <input
@@ -175,7 +179,6 @@ const EditProfile = () => {
                   />
                 </div>
 
-                {/* О себе */}
                 <div className="form-group">
                   <label className="form-label">О себе</label>
                   <textarea
@@ -192,7 +195,6 @@ const EditProfile = () => {
                   </div>
                 </div>
 
-                {/* Местоположение */}
                 <div className="form-group">
                   <label className="form-label">Местоположение</label>
                   <input
@@ -205,7 +207,6 @@ const EditProfile = () => {
                   />
                 </div>
 
-                {/* Веб-сайт */}
                 <div className="form-group">
                   <label className="form-label">Веб-сайт</label>
                   <input
@@ -218,7 +219,6 @@ const EditProfile = () => {
                   />
                 </div>
 
-                {/* Дата рождения */}
                 <div className="form-group">
                   <label className="form-label">Дата рождения</label>
                   <input
@@ -230,7 +230,6 @@ const EditProfile = () => {
                   />
                 </div>
 
-                {/* Email уведомления - НОВОЕ */}
                 <div className="form-group">
                   <div style={{ 
                     padding: '15px', 
@@ -271,7 +270,6 @@ const EditProfile = () => {
                   </div>
                 </div>
 
-                {/* Кнопки */}
                 <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
                   <button 
                     type="submit" 
