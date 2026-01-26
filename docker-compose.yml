@@ -7,15 +7,15 @@ services:
     container_name: retro_blog_db
     restart: always
     environment:
-      POSTGRES_DB: ${DB_NAME:-retro_blog}
-      POSTGRES_USER: ${DB_USER:-retro_blog_user}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-retro_blog_password}
+      POSTGRES_DB: retro_blog  
+      POSTGRES_USER: retro_blog_user
+      POSTGRES_PASSWORD: retro_blog_password
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-retro_blog_user}"]
+      test: ["CMD-SHELL", "pg_isready -U retro_blog_user -d retro_blog"]
       interval: 10s
       timeout: 5s
       retries: 5

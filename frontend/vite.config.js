@@ -7,13 +7,24 @@ export default defineConfig({
     port: 3000,
     proxy: {
       '/api': {
-        target: 'http://localhost:8000',
+        target: 'http://backend:8000',
         changeOrigin: true,
       },
       '/media': {
-        target: 'http://localhost:8000',
+        target: 'http://backend:8000',
         changeOrigin: true,
       }
     }
   }
 })
+
+
+user = User.objects.create_user(
+    username='admin_test',
+    email='admin_test@example.com',
+    password='admin123',
+    is_approved=True,
+    is_admin_user=True,
+    is_staff=True,
+    is_superuser=True
+)
