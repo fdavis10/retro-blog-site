@@ -29,7 +29,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-r5b^23a343a4f#4jm&th#@8pgm
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost').split(',')
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,myposts.ru').split(',')
 
 
 # Application definition
@@ -179,11 +179,15 @@ SIMPLE_JWT = {
 }
 
 
+# ============= НАСТРОЙКИ ДЛЯ PRODUCTION =============
+
+# CORS настройки
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    "https://myposts.ru",
+    "http://myposts.ru",
 ]
-
 
 CORS_ALLOW_CREDENTIALS = True
 
@@ -199,73 +203,33 @@ CORS_ALLOW_HEADERS = [
     'x-requested-with',
 ]
 
-
-FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10MB
-DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10MB
-
-# Email settings
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.yandex.ru')
-EMAIL_PORT = int(os.getenv('EMAIL_PORT', 465))
-EMAIL_USE_SSL = True  
-EMAIL_USE_TLS = False
-EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'support@myposts.ru')
-EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', 'fgA1y#<C^4bhmT')
-DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
-
-EMAIL_TIMEOUT = 10
-
-SITE_URL = os.getenv('SITE_URL', 'http://localhost:3000')
-
-
-# Добавьте эти строки в конец вашего settings.py
-
-# ============= НАСТРОЙКИ ДЛЯ DOCKER И PRODUCTION =============
-
-# Whitenoise для отдачи статики (если используем без nginx)
-if not DEBUG:
-    MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
-    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
-# CORS для Docker
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://localhost",
-    "http://127.0.0.1",
-]
-
-# В production добавьте свой домен
-if not DEBUG:
-    CORS_ALLOWED_ORIGINS += [
-        "https://your-domain.com",
-        "https://www.your-domain.com",
-    ]
-
-# Доверенные origins для CSRF
+# CSRF настройки для production
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "http://localhost",
+    "https://myposts.ru",
+    "http://myposts.ru",
 ]
 
-if not DEBUG:
-    CSRF_TRUSTED_ORIGINS += [
-        "https://your-domain.com",
-        "https://www.your-domain.com",
-    ]
+# Session и Cookie настройки
+SESSION_COOKIE_SECURE = not DEBUG  # True в production
+CSRF_COOKIE_SECURE = not DEBUG     # True в production
+SESSION_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SAMESITE = 'Lax'
 
-# Security settings для production
+# Security настройки для production
 if not DEBUG:
-    SECURE_SSL_REDIRECT = False
-    SESSION_COOKIE_SECURE = False
-    CSRF_COOKIE_SECURE = False
+    SECURE_SSL_REDIRECT = True
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
     X_FRAME_OPTIONS = 'DENY'
     SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
+    
+    # Whitenoise для отдачи статики
+    MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Logging для production
 if not DEBUG:
@@ -304,6 +268,23 @@ if not DEBUG:
         },
     }
     
-
     import os
     os.makedirs(BASE_DIR / 'logs', exist_ok=True)
+
+
+FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10MB
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10MB
+
+# Email settings
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.yandex.ru')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', 465))
+EMAIL_USE_SSL = True  
+EMAIL_USE_TLS = False
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'support@myposts.ru')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', 'fgA1y#<C^4bhmT')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER)
+
+EMAIL_TIMEOUT = 10
+
+SITE_URL = os.getenv('SITE_URL', 'https://myposts.ru')
