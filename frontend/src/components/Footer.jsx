@@ -117,7 +117,7 @@ const Footer = () => {
           borderTop: '1px solid var(--fb-border)',
           color: 'var(--fb-text-light)'
         }}>
-          © {currentYear} vld.blog. Все права защищены. Сделано с энтузизмом.
+          © {currentYear} MyPosts. Все права защищены. Сделано с энтузизмом.
         </div>
       </div>
     </footer>

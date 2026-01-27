@@ -10,5 +10,5 @@
   <rect width="120" height="40" fill="url(#bgGradient)" rx="3"/>
   
   <!-- Текст "vld.blog" -->
-  <text x="60" y="27" font-family="Tahoma, sans-serif" font-size="20" font-weight="bold" fill="white" text-anchor="middle">vld.blog</text>
+  <text x="60" y="27" font-family="Tahoma, sans-serif" font-size="20" font-weight="bold" fill="white" text-anchor="middle">MyPosts</text>
 </svg>

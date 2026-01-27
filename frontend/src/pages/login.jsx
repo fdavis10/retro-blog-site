@@ -39,7 +39,7 @@ const Login = () => {
     }}>
       <div className="card" style={{ width: '100%', maxWidth: '400px', margin: '20px' }}>
         <div className="card-header" style={{ textAlign: 'center', fontSize: '18px' }}>
-          retro blog
+          myposts
         </div>
         
         <div className="card-body">
