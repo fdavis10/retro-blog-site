@@ -3,9 +3,10 @@ import { FaCheck, FaTimes, FaTrash, FaUserPlus } from 'react-icons/fa';
 import adminService from '../services/adminService';
 import Header from '../components/Header';
 import RegistrationRequests from '../components/RegistrationRequests';
+import NotificationsManagement from '../components/NotificationsManagement';
 
 const AdminPanel = () => {
-  const [activeTab, setActiveTab] = useState('users'); // users, requests
+  const [activeTab, setActiveTab] = useState('users'); // users, requests, notifications
   const [users, setUsers] = useState([]);
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -82,6 +83,13 @@ const AdminPanel = () => {
               onClick={() => setActiveTab('requests')}
             >
               Заявки на регистрацию
+            </button>
+
+            <button
+              className={`btn ${activeTab === 'notifications' ? 'btn-primary' : 'btn-secondary'}`}
+              onClick={() => setActiveTab('notifications')}
+            >
+              Уведомления
             </button>
           </div>
 
@@ -262,6 +270,11 @@ const AdminPanel = () => {
           {/* Заявки на регистрацию */}
           {activeTab === 'requests' && (
             <RegistrationRequests />
+          )}
+
+          {/* Управление уведомлениями */}
+          {activeTab === 'notifications' && (
+            <NotificationsManagement />
           )}
 
           {/* Модальное окно создания пользователя */}

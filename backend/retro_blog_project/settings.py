@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'users',
     'blog',
     'admin_panel',
+    'notifications',
 ]
 
 MIDDLEWARE = [

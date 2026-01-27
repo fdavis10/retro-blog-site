@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { authService } from '../services/authService';
+import { FaCheckCircle } from 'react-icons/fa';
 
 const Register = () => {
   const [step, setStep] = useState(1); // 1 = форма, 2 = ввод кода, 3 = успех
@@ -102,7 +103,9 @@ const Register = () => {
       }}>
         <div className="card" style={{ width: '100%', maxWidth: '500px', margin: '20px' }}>
           <div className="card-body" style={{ textAlign: 'center', padding: '40px 20px' }}>
-            <div style={{ fontSize: '48px', marginBottom: '20px' }}>✅</div>
+            <div style={{ fontSize: '48px', marginBottom: '20px', color: 'var(--fb-green)' }}>
+              <FaCheckCircle />
+            </div>
             <h2 style={{ marginBottom: '15px' }}>Email подтвержден!</h2>
             <p style={{ marginBottom: '20px', color: 'var(--fb-text-light)' }}>
               Ваша заявка на регистрацию успешно отправлена администратору. 

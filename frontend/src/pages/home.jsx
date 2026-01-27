@@ -3,6 +3,7 @@ import { blogService } from '../services/blogService';
 import PostCard from '../components/PostCard';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
+import NotificationBanner from '../components/NotificationBanner';
 
 const Home = () => {
   const [posts, setPosts] = useState([]);

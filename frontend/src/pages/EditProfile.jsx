@@ -4,6 +4,8 @@ import { authService } from '../services/authService';
 import { useAuth } from '../context/AuthContext';
 import Header from '../components/Header';
 import Avatar from '../components/Avatar';
+import { FaBell } from 'react-icons/fa';
+
 
 const EditProfile = () => {
   const { user, updateUser } = useAuth();
@@ -301,7 +303,7 @@ const handleSubmit = async (e) => {
                       />
                       <div>
                         <div className="form-label" style={{ marginBottom: '5px' }}>
-                          📧 Email-уведомления о новых постах
+                          <FaBell style={{ marginRight: '5px' }} /> Email-уведомления о новых постах
                         </div>
                         <div style={{ 
                           fontSize: '11px', 

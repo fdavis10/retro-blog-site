@@ -5,8 +5,10 @@ import { blogService } from '../services/blogService';
 import { useAuth } from '../context/AuthContext';
 import Header from '../components/Header';
 import Avatar from '../components/Avatar';
+import NotificationBanner from '../components/NotificationBanner';
 import { formatDistanceToNow } from 'date-fns';
 import { ru } from 'date-fns/locale';
+import { FaPaperclip } from 'react-icons/fa';
 
 const PostDetail = () => {
   const { id } = useParams();
@@ -137,6 +139,7 @@ const PostDetail = () => {
       <Header />
       <div className="container" style={{ paddingTop: '20px', paddingBottom: '20px' }}>
         <div style={{ maxWidth: '700px', margin: '0 auto' }}>
+          <NotificationBanner />
           <div style={{ marginBottom: '15px' }}>
             <Link to="/" className="btn btn-secondary btn-sm">
               ← Назад к ленте
@@ -205,7 +208,7 @@ const PostDetail = () => {
                       rel="noopener noreferrer"
                       style={{ fontSize: '12px' }}
                     >
-                      📎 {attachment.file_name} ({(attachment.file_size / 1024).toFixed(1)} KB)
+                      <FaPaperclip style={{ marginRight: '5px' }} /> {attachment.file_name} ({(attachment.file_size / 1024).toFixed(1)} KB)
                     </a>
                   </div>
                 ))}

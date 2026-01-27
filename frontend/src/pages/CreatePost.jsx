@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { blogService } from '../services/blogService';
 import Header from '../components/Header';
 import RichTextEditor from '../components/RichTextEditor';
+import { FaImage, FaPaperclip } from 'react-icons/fa';
 
 const CreatePost = () => {
   const [title, setTitle] = useState('');
@@ -130,7 +131,7 @@ const CreatePost = () => {
                             fontSize: '12px'
                           }}
                         >
-                          <span>📷 {image.name}</span>
+                          <span><FaImage style={{ marginRight: '5px' }} /> {image.name}</span>
                           <button
                             type="button"
                             onClick={() => removeImage(index)}
@@ -167,7 +168,7 @@ const CreatePost = () => {
                             fontSize: '12px'
                           }}
                         >
-                          <span>📎 {file.name}</span>
+                          <span><FaPaperclip style={{ marginRight: '5px' }} /> {file.name}</span>
                           <button
                             type="button"
                             onClick={() => removeAttachment(index)}

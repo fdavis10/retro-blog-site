@@ -5,6 +5,8 @@ import { authService } from '../services/authService';
 import { useAuth } from '../context/AuthContext';
 import Header from '../components/Header';
 import Avatar from '../components/Avatar';
+import { FaMapMarkerAlt, FaLink, FaBirthdayCake } from 'react-icons/fa';
+
 
 const Profile = () => {
   const { username } = useParams();
@@ -102,13 +104,13 @@ const Profile = () => {
                   <div style={{ fontSize: '13px', color: 'var(--fb-text)' }}>
                     {user.profile?.location && (
                       <div style={{ marginBottom: '5px' }}>
-                        📍 {user.profile.location}
+                        <FaMapMarkerAlt style={{ marginRight: '5px' }} /> {user.profile.location}
                       </div>
                     )}
                     
                     {user.profile?.website && (
                       <div style={{ marginBottom: '5px' }}>
-                        🔗 <a href={user.profile.website} target="_blank" rel="noopener noreferrer">
+                        <FaLink style={{ marginRight: '5px' }} /> <a href={user.profile.website}>
                           {user.profile.website}
                         </a>
                       </div>
@@ -116,7 +118,7 @@ const Profile = () => {
 
                     {user.profile?.birth_date && (
                       <div style={{ marginBottom: '5px' }}>
-                        🎂 {new Date(user.profile.birth_date).toLocaleDateString('ru-RU', { 
+                        <FaBirthdayCake style={{ marginRight: '5px' }} /> {new Date(user.profile.birth_date).toLocaleDateString('ru-RU', { 
                           day: 'numeric', 
                           month: 'long', 
                           year: 'numeric' 

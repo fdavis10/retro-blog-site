@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { FaEnvelope, FaPaperPlane } from 'react-icons/fa';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -77,10 +78,10 @@ const Footer = () => {
             </h4>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
               <li style={{ marginBottom: '8px' }}>
-                📧 Email: waiting
+                <FaEnvelope style={{ marginRight: '5px' }} /> Email: waiting
               </li>
               <li style={{ marginBottom: '8px' }}>
-                💬 Telegram: @vladimir_telniy
+                <FaPaperPlane style={{ marginRight: '5px' }} /> Telegram: @vladimir_telniy
               </li>
             </ul>
           </div>

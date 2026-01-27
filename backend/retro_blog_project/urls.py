@@ -6,8 +6,9 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('django-admin/', admin.site.urls),
     path('api/admin/', include('admin_panel.urls')),
-    path('api/auth/', include('users.urls')),  # ← Это должно быть!
+    path('api/auth/', include('users.urls')), 
     path('api/blog/', include('blog.urls')),
+    path('api/notifications/', include('notifications.urls')),
 ]
 
 # Serve media files in development
