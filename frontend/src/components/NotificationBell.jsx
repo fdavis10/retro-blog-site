@@ -101,13 +101,26 @@ const NotificationBell = () => {
       {/* Колокольчик */}
       <button
         onClick={handleBellClick}
-        className="header-link"
         style={{
           position: 'relative',
           padding: '6px 12px',
           display: 'flex',
           alignItems: 'center',
           gap: '5px',
+          background: 'none',
+          border: 'none',
+          color: 'white',
+          cursor: 'pointer',
+          fontSize: '16px',
+          fontWeight: 'bold',
+          borderRadius: '2px',
+          transition: 'background-color 0.2s',
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.backgroundColor = 'transparent';
         }}
       >
         <FaBell style={{ fontSize: '16px' }} />

@@ -39,19 +39,20 @@ const Header = () => {
                 Профиль
               </Link>
 
-              {/* Кнопка "Создать пост" для админов блога */}
               {isAdmin && (
                 <Link to="/create-post" className="header-link">
                   Создать пост
                 </Link>
               )}
 
-              {/* Кнопка "Админка" для суперпользователей */}
               {isSuperuser && (
                 <Link to="/admin" className="header-link">
                   Админка
                 </Link>
               )}
+
+              {/* ✅ ДОБАВЛЯЕМ КОЛОКОЛЬЧИК СЮДА! */}
+              <NotificationBell />
 
               <button onClick={handleLogout} className="header-link" style={{ background: 'none', border: 'none', cursor: 'pointer' }}>
                 Выход
@@ -65,3 +66,5 @@ const Header = () => {
 };
 
 export default Header;
+
+
