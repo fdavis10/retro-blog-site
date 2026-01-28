@@ -35,9 +35,6 @@ class User(AbstractUser):
 
 
 class Profile(models.Model):
-    """
-    Профиль пользователя с дополнительной информацией.
-    """
     user = models.OneToOneField(
         User,
         on_delete=models.CASCADE,
@@ -70,17 +67,115 @@ class Profile(models.Model):
         max_length=200,
         blank=True
     )
-    # Новое поле для подписки на уведомления
     email_notifications = models.BooleanField(
         _('email уведомления о новых постах'),
         default=True,
         help_text=_('Получать уведомления на email о публикации новых постов')
     )
     
+    RELATIONSHIP_CHOICES = [
+        ('', 'Не указано'),
+        ('single', 'Не женат / Не замужем'),
+        ('in_relationship', 'В отношениях'),
+        ('engaged', 'Помолвлен(а)'),
+        ('married', 'Женат / Замужем'),
+        ('complicated', 'Всё сложно'),
+        ('open', 'В открытых отношениях'),
+        ('widowed', 'Вдовец / Вдова'),
+        ('separated', 'В разводе'),
+    ]
+    relationship_status = models.CharField(
+        _('семейное положение'),
+        max_length=30,
+        choices=RELATIONSHIP_CHOICES,
+        blank=True
+    )
+    
+    POLITICAL_CHOICES = [
+        ('', 'Не указано'),
+        ('very_conservative', 'Очень консервативные'),
+        ('conservative', 'Консервативные'),
+        ('moderate', 'Умеренные'),
+        ('liberal', 'Либеральные'),
+        ('very_liberal', 'Очень либеральные'),
+        ('apolitical', 'Аполитичен'),
+    ]
+    political_views = models.CharField(
+        _('политические взгляды'),
+        max_length=30,
+        choices=POLITICAL_CHOICES,
+        blank=True
+    )
+    
+    religious_views = models.CharField(
+        _('религиозные взгляды'),
+        max_length=100,
+        blank=True
+    )
+    
+    interests = models.TextField(
+        _('интересы'),
+        max_length=500,
+        blank=True,
+        help_text=_('Музыка, книги, фильмы, хобби...')
+    )
+    
+    favorite_music = models.TextField(
+        _('любимая музыка'),
+        max_length=300,
+        blank=True
+    )
+    
+    favorite_movies = models.TextField(
+        _('любимые фильмы'),
+        max_length=300,
+        blank=True
+    )
+    
+    favorite_books = models.TextField(
+        _('любимые книги'),
+        max_length=300,
+        blank=True
+    )
+    
+    SMOKING_CHOICES = [
+        ('', 'Не указано'),
+        ('no', 'Не курю'),
+        ('yes', 'Курю'),
+        ('sometimes', 'Иногда'),
+    ]
+    smoking = models.CharField(
+        _('курение'),
+        max_length=20,
+        choices=SMOKING_CHOICES,
+        blank=True
+    )
+    
+    DRINKING_CHOICES = [
+        ('', 'Не указано'),
+        ('no', 'Не пью'),
+        ('yes', 'Пью'),
+        ('sometimes', 'Иногда'),
+        ('socially', 'В компании'),
+    ]
+    drinking = models.CharField(
+        _('алкоголь'),
+        max_length=20,
+        choices=DRINKING_CHOICES,
+        blank=True
+    )
+    
+    life_position = models.TextField(
+        _('жизненная позиция'),
+        max_length=300,
+        blank=True,
+        help_text=_('Главное в жизни, взгляды на жизнь...')
+    )
+    
     class Meta:
         verbose_name = _('профиль')
         verbose_name_plural = _('профили')
-
+    
     def __str__(self):
         return f'Профиль {self.user.username}'
 

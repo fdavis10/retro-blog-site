@@ -9,6 +9,7 @@ urlpatterns = [
     path('api/auth/', include('users.urls')), 
     path('api/blog/', include('blog.urls')),
     path('api/notifications/', include('notifications.urls')),
+    path('api/friends/', include('friends.urls')),
 ]
 
 # Serve media files in development

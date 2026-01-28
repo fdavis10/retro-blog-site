@@ -1,33 +1,29 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { FaBell, FaTimes } from 'react-icons/fa';
+import { FaBell, FaTimes, FaComment, FaHeart, FaUserPlus, FaUserCheck, FaUserTimes } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 import notificationService from '../services/notificationService';
+import friendsService from '../services/friendsService';
 
 const NotificationBell = () => {
-  const [notifications, setNotifications] = useState([]);
+  const [postNotifications, setPostNotifications] = useState([]);
+  const [friendNotifications, setFriendNotifications] = useState([]);
+  const [allNotifications, setAllNotifications] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
-  const [dismissedIds, setDismissedIds] = useState([]);
   const dropdownRef = useRef(null);
 
   useEffect(() => {
     loadNotifications();
-    loadUnreadCount();
-    
-    // Загружаем закрытые из localStorage
-    const dismissed = JSON.parse(localStorage.getItem('dismissedNotifications') || '[]');
-    setDismissedIds(dismissed);
 
     // Обновляем каждые 30 секунд
     const interval = setInterval(() => {
       loadNotifications();
-      loadUnreadCount();
     }, 30000);
 
     return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
-    // Закрываем dropdown при клике вне его
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsOpen(false);
@@ -40,65 +36,173 @@ const NotificationBell = () => {
 
   const loadNotifications = async () => {
     try {
-      const data = await notificationService.getActiveNotifications();
-      setNotifications(Array.isArray(data) ? data : (data.results || []));
+      // Загружаем уведомления о постах
+      const postData = await notificationService.getNotifications();
+      const posts = Array.isArray(postData) ? postData : (postData.results || []);
+      
+      // Загружаем внутренние уведомления (друзья)
+      const friendData = await friendsService.getInternalNotifications();
+      const friends = Array.isArray(friendData) ? friendData : (friendData.results || []);
+      
+      // Загружаем количество непрочитанных внутренних уведомлений
+      const friendUnreadData = await friendsService.getUnreadNotificationsCount();
+      const friendUnreadCount = friendUnreadData.count || 0;
+
+      setPostNotifications(posts);
+      setFriendNotifications(friends);
+
+      // Объединяем и сортируем по дате
+      const combined = [
+        ...posts.map(n => ({ ...n, type: 'post' })),
+        ...friends.map(n => ({ ...n, type: 'friend' }))
+      ].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+      setAllNotifications(combined);
+
+      // Подсчитываем непрочитанные
+      const postUnread = posts.filter(n => !n.is_read).length;
+      setUnreadCount(postUnread + friendUnreadCount);
     } catch (error) {
       console.error('Error loading notifications:', error);
     }
   };
 
-  const loadUnreadCount = async () => {
+  const handleMarkAsRead = async (notification) => {
     try {
-      const data = await notificationService.getUnreadCount();
-      setUnreadCount(data.unread_count || 0);
-    } catch (error) {
-      console.error('Error loading unread count:', error);
-    }
-  };
-
-  const handleDismiss = async (notificationId) => {
-    try {
-      await notificationService.dismissNotification(notificationId);
-      
-      const newDismissed = [...dismissedIds, notificationId];
-      setDismissedIds(newDismissed);
-      localStorage.setItem('dismissedNotifications', JSON.stringify(newDismissed));
-      
-      loadUnreadCount();
-    } catch (error) {
-      console.error('Error dismissing notification:', error);
-    }
-  };
-
-  const handleMarkAsRead = async (notificationId) => {
-    try {
-      await notificationService.markAsRead(notificationId);
-      loadUnreadCount();
+      if (notification.type === 'post') {
+        await notificationService.markAsRead(notification.id);
+      } else if (notification.type === 'friend') {
+        await friendsService.markNotificationRead(notification.id);
+      }
+      loadNotifications();
     } catch (error) {
       console.error('Error marking as read:', error);
     }
   };
 
-  const handleBellClick = () => {
-    setIsOpen(!isOpen);
-    if (!isOpen && notifications.length > 0) {
-      // Помечаем все как прочитанные при открытии
-      notifications.forEach(n => {
-        if (!n.is_read && !dismissedIds.includes(n.id)) {
-          handleMarkAsRead(n.id);
-        }
-      });
+  const handleMarkAllAsRead = async () => {
+    try {
+      // Помечаем все уведомления о постах
+      const unreadPostNotifications = postNotifications.filter(n => !n.is_read);
+      await Promise.all(
+        unreadPostNotifications.map(n => notificationService.markAsRead(n.id))
+      );
+
+      // Помечаем все внутренние уведомления
+      await friendsService.markAllNotificationsRead();
+
+      loadNotifications();
+    } catch (error) {
+      console.error('Error marking all as read:', error);
     }
   };
 
-  // Фильтруем не закрытые
-  const activeNotifications = notifications.filter(
-    n => !dismissedIds.includes(n.id)
-  );
+  const handleBellClick = () => {
+    setIsOpen(!isOpen);
+    if (!isOpen && unreadCount > 0) {
+      handleMarkAllAsRead();
+    }
+  };
+
+  const getIcon = (notification) => {
+    if (notification.type === 'post') {
+      return notification.notification_type === 'like' 
+        ? <FaHeart style={{ color: 'var(--fb-red)' }} />
+        : <FaComment style={{ color: 'var(--fb-blue)' }} />;
+    } else if (notification.type === 'friend') {
+      switch (notification.notification_type) {
+        case 'friend_request':
+          return <FaUserPlus style={{ color: 'var(--fb-blue)' }} />;
+        case 'friend_accepted':
+          return <FaUserCheck style={{ color: 'var(--fb-green)' }} />;
+        case 'friend_rejected':
+          return <FaUserTimes style={{ color: 'var(--fb-red)' }} />;
+        case 'new_subscriber':
+          return <FaUserPlus style={{ color: 'var(--fb-blue)' }} />;
+        default:
+          return <FaBell />;
+      }
+    }
+    return <FaBell />;
+  };
+
+  const getNotificationText = (notification) => {
+    if (notification.type === 'post') {
+      return (
+        <>
+          <Link
+            to={`/profile/${notification.actor.username}`}
+            style={{ fontWeight: 'bold', color: 'var(--fb-blue)' }}
+          >
+            {notification.actor.first_name && notification.actor.last_name
+              ? `${notification.actor.first_name} ${notification.actor.last_name}`
+              : notification.actor.username}
+          </Link>
+          {' '}
+          <span style={{ color: 'var(--fb-text)' }}>
+            {notification.notification_type === 'like' 
+              ? 'оценил(а) ваш пост'
+              : 'прокомментировал(а) ваш пост'}
+          </span>
+        </>
+      );
+    } else if (notification.type === 'friend') {
+      return (
+        <>
+          <Link
+            to={`/profile/${notification.from_user.username}`}
+            style={{ fontWeight: 'bold', color: 'var(--fb-blue)' }}
+          >
+            {notification.from_user.first_name && notification.from_user.last_name
+              ? `${notification.from_user.first_name} ${notification.from_user.last_name}`
+              : notification.from_user.username}
+          </Link>
+          {' '}
+          <span style={{ color: 'var(--fb-text)' }}>
+            {notification.type_display.toLowerCase()}
+          </span>
+        </>
+      );
+    }
+  };
+
+  const handleAcceptRequest = async (notification) => {
+    try {
+      const requests = await friendsService.getIncomingRequests();
+      const request = requests.find(r => r.from_user.id === notification.from_user.id);
+      
+      if (request) {
+        await friendsService.acceptFriendRequest(request.id);
+        loadNotifications();
+      }
+    } catch (error) {
+      console.error('Error accepting request:', error);
+    }
+  };
+
+  const handleRejectRequest = async (notification) => {
+    try {
+      const requests = await friendsService.getIncomingRequests();
+      const request = requests.find(r => r.from_user.id === notification.from_user.id);
+      
+      if (request) {
+        await friendsService.rejectFriendRequest(request.id);
+        loadNotifications();
+      }
+    } catch (error) {
+      console.error('Error rejecting request:', error);
+    }
+  };
+
+  const getNotificationLink = (notification) => {
+    if (notification.type === 'post' && notification.post) {
+      return `/post/${notification.post}`;
+    }
+    return null;
+  };
 
   return (
     <div style={{ position: 'relative' }} ref={dropdownRef}>
-      {/* Колокольчик */}
       <button
         onClick={handleBellClick}
         style={{
@@ -145,7 +249,6 @@ const NotificationBell = () => {
         )}
       </button>
 
-      {/* Dropdown */}
       {isOpen && (
         <div
           style={{
@@ -153,13 +256,15 @@ const NotificationBell = () => {
             top: '100%',
             right: 0,
             marginTop: '8px',
-            width: '350px',
+            width: '400px',
             maxWidth: '90vw',
             backgroundColor: 'white',
             border: '1px solid var(--fb-border)',
             borderRadius: '3px',
             boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
             zIndex: 1000,
+            maxHeight: '500px',
+            overflowY: 'auto',
           }}
         >
           {/* Заголовок */}
@@ -173,138 +278,128 @@ const NotificationBell = () => {
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
+              position: 'sticky',
+              top: 0,
+              backgroundColor: 'white',
+              zIndex: 1,
             }}
           >
             <span>Уведомления</span>
-            {activeNotifications.length > 0 && (
-              <span
+            {allNotifications.length > 0 && (
+              <button
+                onClick={handleMarkAllAsRead}
                 style={{
                   fontSize: '11px',
-                  fontWeight: 'normal',
-                  color: 'var(--fb-text-light)',
+                  color: 'var(--fb-blue)',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
                 }}
               >
-                {activeNotifications.length}
-              </span>
+                Прочитать все
+              </button>
             )}
           </div>
 
           {/* Список уведомлений */}
-          <div
-            style={{
-              maxHeight: '400px',
-              overflowY: 'auto',
-            }}
-          >
-            {activeNotifications.length === 0 ? (
-              <div
-                style={{
-                  padding: '30px 20px',
-                  textAlign: 'center',
-                  color: 'var(--fb-text-light)',
-                  fontSize: '13px',
-                }}
-              >
-                <div style={{ fontSize: '40px', color: 'var(--fb-text-light)', marginBottom: '10px' }}>
-                  <FaBell />
-                </div>
-                Нет уведомлений
+          {allNotifications.length === 0 ? (
+            <div
+              style={{
+                padding: '30px 20px',
+                textAlign: 'center',
+                color: 'var(--fb-text-light)',
+                fontSize: '13px',
+              }}
+            >
+              <div style={{ fontSize: '40px', marginBottom: '10px' }}>
+                <FaBell />
               </div>
-            ) : (
-              activeNotifications.map((notification) => (
+              Нет уведомлений
+            </div>
+          ) : (
+            allNotifications.map((notification) => {
+              const link = getNotificationLink(notification);
+              const content = (
                 <div
-                  key={notification.id}
                   style={{
                     padding: '12px 15px',
                     borderBottom: '1px solid var(--fb-border)',
                     backgroundColor: notification.is_read ? 'white' : 'var(--fb-hover)',
-                    cursor: 'pointer',
-                    transition: 'background-color 0.2s',
+                    cursor: link ? 'pointer' : 'default',
                   }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = 'var(--fb-hover)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = notification.is_read
-                      ? 'white'
-                      : 'var(--fb-hover)';
+                  onClick={() => {
+                    if (link) {
+                      window.location.href = link;
+                    }
                   }}
                 >
                   <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-start' }}>
-                    {/* Цветной индикатор типа */}
-                    <div
-                      style={{
-                        width: '4px',
-                        height: '100%',
-                        backgroundColor: notification.colors.border,
-                        borderRadius: '2px',
-                        flexShrink: 0,
-                      }}
-                    />
-
-                    {/* Контент */}
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div
-                        style={{
-                          fontWeight: 'bold',
-                          fontSize: '13px',
-                          marginBottom: '4px',
-                          color: 'var(--fb-text)',
-                        }}
-                      >
-                        {notification.title}
-                      </div>
-                      <div
-                        style={{
-                          fontSize: '12px',
-                          color: 'var(--fb-text-light)',
-                          lineHeight: '1.4',
-                          marginBottom: '4px',
-                          display: '-webkit-box',
-                          WebkitLineClamp: 2,
-                          WebkitBoxOrient: 'vertical',
-                          overflow: 'hidden',
-                        }}
-                      >
-                        {notification.message}
-                      </div>
-                      <div
-                        style={{
-                          fontSize: '10px',
-                          color: 'var(--fb-text-light)',
-                        }}
-                      >
-                        {new Date(notification.created_at).toLocaleDateString('ru-RU')}
-                      </div>
+                    <div style={{ fontSize: '24px', marginTop: '5px' }}>
+                      {getIcon(notification)}
                     </div>
 
-                    {/* Кнопка закрытия */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDismiss(notification.id);
-                      }}
-                      style={{
-                        background: 'none',
-                        border: 'none',
-                        color: 'var(--fb-text-light)',
-                        cursor: 'pointer',
-                        fontSize: '14px',
-                        padding: '4px',
-                        opacity: 0.6,
-                        flexShrink: 0,
-                      }}
-                      onMouseEnter={(e) => (e.target.style.opacity = '1')}
-                      onMouseLeave={(e) => (e.target.style.opacity = '0.6')}
-                      title="Закрыть"
-                    >
-                      <FaTimes />
-                    </button>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: '13px', marginBottom: '5px' }}>
+                        {getNotificationText(notification)}
+                      </div>
+
+                      <div style={{ fontSize: '11px', color: 'var(--fb-text-light)' }}>
+                        {new Date(notification.created_at).toLocaleString('ru-RU')}
+                      </div>
+
+                      {/* Кнопки для заявки в друзья */}
+                      {notification.type === 'friend' && 
+                       notification.notification_type === 'friend_request' && 
+                       !notification.is_read && (
+                        <div style={{ marginTop: '8px', display: 'flex', gap: '5px' }}>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleAcceptRequest(notification);
+                            }}
+                            className="btn btn-primary btn-sm"
+                          >
+                            Принять
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleRejectRequest(notification);
+                            }}
+                            className="btn btn-secondary btn-sm"
+                          >
+                            Отклонить
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    {!notification.is_read && (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleMarkAsRead(notification);
+                        }}
+                        style={{
+                          background: 'none',
+                          border: 'none',
+                          color: 'var(--fb-text-light)',
+                          cursor: 'pointer',
+                          fontSize: '14px',
+                          padding: '4px',
+                        }}
+                        title="Отметить как прочитанное"
+                      >
+                        <FaTimes />
+                      </button>
+                    )}
                   </div>
                 </div>
-              ))
-            )}
-          </div>
+              );
+
+              return <div key={`${notification.type}-${notification.id}`}>{content}</div>;
+            })
+          )}
         </div>
       )}
     </div>

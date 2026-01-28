@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'blog',
     'admin_panel',
     'notifications',
+    'friends',
 ]
 
 MIDDLEWARE = [
