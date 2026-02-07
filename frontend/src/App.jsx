@@ -6,7 +6,8 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
 import ProfileEdit from './pages/ProfileEdit';
-import Friends from './pages/Friends';  // ← ДОБАВЬ
+import Friends from './pages/Friends';
+import AdminPanel from './pages/AdminPanel';
 import CreatePost from './pages/CreatePost';
 import './styles//App.css';
 
@@ -43,6 +44,11 @@ function App() {
     <Router>
       <AuthProvider>
         <Routes>
+          <Route path="/admin" element={
+            <AdminRoute>
+              <AdminPanel />
+            </AdminRoute>
+          } />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           

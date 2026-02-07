@@ -1,7 +1,15 @@
 import api from './api';
 
 export const notificationService = {
-  // Получить все активные уведомления
+  // === USER ENDPOINTS ===
+  
+  // Получить уведомления о постах (лайки, комментарии)
+  getNotifications: async () => {
+    const response = await api.get('/notifications/');
+    return response.data;
+  },
+
+  // Получить все активные баннер-уведомления
   getActiveNotifications: async () => {
     const response = await api.get('/notifications/active/');
     return response.data;

@@ -213,12 +213,12 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 # Session и Cookie настройки
-SESSION_COOKIE_SECURE = not DEBUG  # True в production
-CSRF_COOKIE_SECURE = not DEBUG     # True в production
+SESSION_COOKIE_SECURE = True  # True в production
+CSRF_COOKIE_SECURE = True     # True в production
 SESSION_COOKIE_SAMESITE = 'Lax'
 CSRF_COOKIE_SAMESITE = 'Lax'
 
-# Security настройки для production
+
 if not DEBUG:
     SECURE_SSL_REDIRECT = True
     SECURE_BROWSER_XSS_FILTER = True

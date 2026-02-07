@@ -105,13 +105,11 @@ class ProfileUpdateView(generics.UpdateAPIView):
         return self.request.user
     
     def update(self, request, *args, **kwargs):
-        # ИСПРАВЛЕНИЕ: Добавляем логирование для отладки
         logger.info(f'Profile update request for user: {request.user.username}')
-        logger.info(f'Request data: {request.data}')
         
-        partial = kwargs.pop('partial', False)
+        # Используем partial=True — обновляем только переданные поля (email и др. не обязательны)
         instance = self.get_object()
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
 

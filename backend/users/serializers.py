@@ -12,7 +12,12 @@ class ProfileSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Profile
-        fields = ['avatar', 'bio', 'birth_date', 'location', 'website', 'email_notifications']
+        fields = [
+            'avatar', 'bio', 'birth_date', 'location', 'website', 'email_notifications',
+            'relationship_status', 'political_views', 'religious_views', 'interests',
+            'favorite_music', 'favorite_movies', 'favorite_books',
+            'smoking', 'drinking', 'life_position'
+        ]
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -91,8 +96,13 @@ class UserProfileUpdateSerializer(serializers.ModelSerializer):
                 
                 for attr, value in profile_data.items():
                     if hasattr(profile, attr):
-                        # Для полей, которые могут быть пустыми
-                        if attr in ['location', 'website', 'bio']:
+                        # Для полей, которые могут быть пустыми (текстовые поля)
+                        if attr in ['location', 'website', 'bio', 'religious_views',
+                                   'interests', 'favorite_music', 'favorite_movies',
+                                   'favorite_books', 'life_position']:
+                            setattr(profile, attr, value if value else '')
+                        # Для выборочных полей (CharField с choices)
+                        elif attr in ['relationship_status', 'political_views', 'smoking', 'drinking']:
                             setattr(profile, attr, value if value else '')
                         # Для даты рождения: пустая строка или None -> None
                         elif attr == 'birth_date':

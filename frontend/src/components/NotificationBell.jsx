@@ -262,7 +262,7 @@ const NotificationBell = () => {
             border: '1px solid var(--fb-border)',
             borderRadius: '3px',
             boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-            zIndex: 1000,
+            zIndex: 1001,
             maxHeight: '500px',
             overflowY: 'auto',
           }}

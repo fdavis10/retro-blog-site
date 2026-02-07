@@ -6,7 +6,7 @@ import Header from '../components/Header';
 import Avatar from '../components/Avatar';
 
 const ProfileEdit = () => {
-  const { user, setUser } = useAuth();
+  const { user, updateUser } = useAuth();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -83,34 +83,33 @@ const ProfileEdit = () => {
     setSuccess('');
 
     try {
-      const data = new FormData();
-      
-      // Основные поля
-      data.append('first_name', formData.first_name);
-      data.append('last_name', formData.last_name);
-      
-      // Поля профиля
-      data.append('bio', formData.bio);
-      data.append('location', formData.location);
-      data.append('website', formData.website);
-      data.append('birth_date', formData.birth_date);
-      data.append('relationship_status', formData.relationship_status);
-      data.append('political_views', formData.political_views);
-      data.append('religious_views', formData.religious_views);
-      data.append('interests', formData.interests);
-      data.append('favorite_music', formData.favorite_music);
-      data.append('favorite_movies', formData.favorite_movies);
-      data.append('favorite_books', formData.favorite_books);
-      data.append('smoking', formData.smoking);
-      data.append('drinking', formData.drinking);
-      data.append('life_position', formData.life_position);
+      const updateData = {
+        first_name: formData.first_name,
+        last_name: formData.last_name,
+        profile: {
+          bio: formData.bio,
+          location: formData.location,
+          website: formData.website,
+          birth_date: formData.birth_date,
+          relationship_status: formData.relationship_status,
+          political_views: formData.political_views,
+          religious_views: formData.religious_views,
+          interests: formData.interests,
+          favorite_music: formData.favorite_music,
+          favorite_movies: formData.favorite_movies,
+          favorite_books: formData.favorite_books,
+          smoking: formData.smoking,
+          drinking: formData.drinking,
+          life_position: formData.life_position
+        }
+      };
 
       if (avatar) {
-        data.append('avatar', avatar);
+        updateData.avatar = avatar;
       }
 
-      const updatedUser = await authService.updateProfile(data);
-      setUser(updatedUser);
+      const updatedUser = await authService.updateProfile(updateData);
+      updateUser(updatedUser);
       setSuccess('Профиль успешно обновлен!');
       
       setTimeout(() => {

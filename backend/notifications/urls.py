@@ -1,9 +1,13 @@
 from django.urls import path
 from . import views
+from friends.views import InternalNotificationsView
 
 app_name = 'notifications'
 
 urlpatterns = [
+    
+    path('', InternalNotificationsView.as_view(), name='user_notifications'),
+
     path('active/', views.ActiveNotificationsView.as_view(), name='active_notifications'),
     path('<int:notification_id>/dismiss/', views.DismissNotificationView.as_view(), name='dismiss_notification'),
     path('<int:notification_id>/read/', views.MarkNotificationReadView.as_view(), name='mark_read'),
