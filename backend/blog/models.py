@@ -1,6 +1,49 @@
 from django.db import models
 from django.conf import settings
 from django.utils.translation import gettext_lazy as _
+import random
+
+
+class Category(models.Model):
+    """Модель для рубрик постов с автоматическим назначением цветов"""
+    # Предопределенные цвета из изображения
+    COLOR_CHOICES = [
+        ('#1877F2', 'Primary (синий)'),
+        ('#65676B', 'Secondary (серый)'),
+        ('#42B72A', 'Success (зеленый)'),
+        ('#F02849', 'Danger (красный)'),
+        ('#F7B928', 'Warning (желтый)'),
+        ('#45BD62', 'Info (голубой)'),
+    ]
+    
+    name = models.CharField(_('название'), max_length=100, unique=True)
+    color = models.CharField(_('цвет'), max_length=7, choices=COLOR_CHOICES)
+    created_at = models.DateTimeField(_('дата создания'), auto_now_add=True)
+    
+    class Meta:
+        verbose_name = _('рубрика')
+        verbose_name_plural = _('рубрики')
+        ordering = ['name']
+    
+    def __str__(self):
+        return self.name
+    
+    @classmethod
+    def get_or_create_with_color(cls, name):
+        """Получить или создать рубрику с автоматическим назначением цвета"""
+        if not name:
+            return None
+        
+        category, created = cls.objects.get_or_create(name=name.strip())
+        
+        if created:
+            # Если рубрика новая, назначаем цвет по кругу
+            existing_categories = cls.objects.exclude(id=category.id).count()
+            color_index = existing_categories % len(cls.COLOR_CHOICES)
+            category.color = cls.COLOR_CHOICES[color_index][0]
+            category.save()
+        
+        return category
 
 
 class Post(models.Model):
@@ -11,7 +54,15 @@ class Post(models.Model):
         verbose_name=_('автор')
     )
     title = models.CharField(_('заголовок'), max_length=200)
-    content = models.TextField(_('содержание'))  
+    content = models.TextField(_('содержание'))
+    category = models.ForeignKey(
+        Category,
+        on_delete=models.SET_NULL,
+        related_name='posts',
+        verbose_name=_('рубрика'),
+        null=True,
+        blank=True
+    )
     created_at = models.DateTimeField(_('дата создания'), auto_now_add=True)
     updated_at = models.DateTimeField(_('дата обновления'), auto_now=True)
     is_published = models.BooleanField(_('опубликовано'), default=True)

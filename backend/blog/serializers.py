@@ -1,6 +1,12 @@
 from rest_framework import serializers
-from .models import Post, PostImage, PostAttachment, Comment, Like
+from .models import Post, PostImage, PostAttachment, Comment, Like, Category
 from users.serializers import UserSerializer
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ['id', 'name', 'color']
 
 
 class PostImageSerializer(serializers.ModelSerializer):
@@ -38,6 +44,7 @@ class LikeSerializer(serializers.ModelSerializer):
 class PostListSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
     images = PostImageSerializer(many=True, read_only=True)
+    category = CategorySerializer(read_only=True)
     likes_count = serializers.IntegerField(read_only=True)
     comments_count = serializers.IntegerField(read_only=True)
     is_liked = serializers.SerializerMethodField()
@@ -45,7 +52,7 @@ class PostListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
         fields = [
-            'id', 'title', 'content', 'author', 'images',
+            'id', 'title', 'content', 'author', 'images', 'category',
             'created_at', 'updated_at', 'is_published',
             'likes_count', 'comments_count', 'is_liked'
         ]
@@ -63,6 +70,7 @@ class PostDetailSerializer(serializers.ModelSerializer):
     images = PostImageSerializer(many=True, read_only=True)
     attachments = PostAttachmentSerializer(many=True, read_only=True)
     comments = CommentSerializer(many=True, read_only=True)
+    category = CategorySerializer(read_only=True)
     likes_count = serializers.IntegerField(read_only=True)
     comments_count = serializers.IntegerField(read_only=True)
     is_liked = serializers.SerializerMethodField()
@@ -71,7 +79,7 @@ class PostDetailSerializer(serializers.ModelSerializer):
         model = Post
         fields = [
             'id', 'title', 'content', 'author', 'images', 'attachments',
-            'comments', 'created_at', 'updated_at', 'is_published',
+            'comments', 'category', 'created_at', 'updated_at', 'is_published',
             'likes_count', 'comments_count', 'is_liked'
         ]
         read_only_fields = ['created_at', 'updated_at', 'author']
@@ -84,9 +92,9 @@ class PostDetailSerializer(serializers.ModelSerializer):
 
 
 class PostCreateUpdateSerializer(serializers.ModelSerializer):
-
     images = PostImageSerializer(many=True, read_only=True)
     attachments = PostAttachmentSerializer(many=True, read_only=True)
+    category = CategorySerializer(read_only=True)
     uploaded_images = serializers.ListField(
         child=serializers.ImageField(),
         write_only=True,
@@ -97,11 +105,12 @@ class PostCreateUpdateSerializer(serializers.ModelSerializer):
         write_only=True,
         required=False
     )
+    category_name = serializers.CharField(write_only=True, required=False, allow_blank=True)
     
     class Meta:
         model = Post
         fields = [
-            'id', 'title', 'content', 'is_published',
+            'id', 'title', 'content', 'is_published', 'category', 'category_name',
             'images', 'attachments', 'uploaded_images', 'uploaded_attachments',
             'created_at', 'updated_at'
         ]
@@ -110,16 +119,19 @@ class PostCreateUpdateSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         uploaded_images = validated_data.pop('uploaded_images', [])
         uploaded_attachments = validated_data.pop('uploaded_attachments', [])
+        category_name = validated_data.pop('category_name', None)
+        
+        # Создаем или получаем рубрику
+        if category_name:
+            category = Category.get_or_create_with_color(category_name)
+            validated_data['category'] = category
         
         post = Post.objects.create(**validated_data)
         
-
         for order, image in enumerate(uploaded_images):
             PostImage.objects.create(post=post, image=image, order=order)
         
-
         for file in uploaded_attachments:
-
             file_type = 'other'
             if file.content_type.startswith('audio/'):
                 file_type = 'audio'
@@ -134,13 +146,20 @@ class PostCreateUpdateSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         uploaded_images = validated_data.pop('uploaded_images', [])
         uploaded_attachments = validated_data.pop('uploaded_attachments', [])
+        category_name = validated_data.pop('category_name', None)
         
-
+        # Обновляем рубрику если указана
+        if category_name is not None:
+            if category_name:
+                category = Category.get_or_create_with_color(category_name)
+                instance.category = category
+            else:
+                instance.category = None
+        
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
         
-
         if uploaded_images:
             current_max_order = instance.images.count()
             for order, image in enumerate(uploaded_images):

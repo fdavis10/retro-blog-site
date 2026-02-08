@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
-import { FaEdit, FaMapMarkerAlt, FaLink, FaBirthdayCake, FaHeart, FaMusic, FaFilm, FaBook, FaEnvelope, FaCircle } from 'react-icons/fa';
+import { FaEdit, FaMapMarkerAlt, FaLink, FaBirthdayCake, FaHeart, FaMusic, FaFilm, FaBook, FaEnvelope, FaCircle, FaThumbsUp } from 'react-icons/fa';
 import { authService } from '../services/authService';
+import { blogService } from '../services/blogService';
 import { useAuth } from '../context/AuthContext';
 import Header from '../components/Header';
 import Avatar from '../components/Avatar';
 import FriendshipButton from '../components/FriendshipButton';
+import PostCard from '../components/PostCard';
 
 const Profile = () => {
   const { username } = useParams();
@@ -15,9 +17,14 @@ const Profile = () => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [userPosts, setUserPosts] = useState([]);
+  const [likedPosts, setLikedPosts] = useState([]);
+  const [activeTab, setActiveTab] = useState('posts'); // 'posts' or 'liked'
+  const [loadingPosts, setLoadingPosts] = useState(false);
 
   useEffect(() => {
     loadProfile();
+    loadUserPosts();
   }, [username]);
 
   const loadProfile = async () => {
@@ -30,6 +37,39 @@ const Profile = () => {
       console.error(err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadUserPosts = async () => {
+    try {
+      setLoadingPosts(true);
+      const posts = await blogService.getUserPosts(username);
+      setUserPosts(Array.isArray(posts) ? posts : (posts.results || []));
+    } catch (err) {
+      console.error('Error loading user posts:', err);
+      setUserPosts([]);
+    } finally {
+      setLoadingPosts(false);
+    }
+  };
+
+  const loadLikedPosts = async () => {
+    try {
+      setLoadingPosts(true);
+      const posts = await blogService.getUserLikedPosts(username);
+      setLikedPosts(Array.isArray(posts) ? posts : (posts.results || []));
+    } catch (err) {
+      console.error('Error loading liked posts:', err);
+      setLikedPosts([]);
+    } finally {
+      setLoadingPosts(false);
+    }
+  };
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    if (tab === 'liked' && likedPosts.length === 0) {
+      loadLikedPosts();
     }
   };
 
@@ -482,6 +522,74 @@ const Profile = () => {
               </div>
             </div>
           )}
+
+          {/* Посты пользователя и лайкнутые посты */}
+          <div className="card" style={{ marginTop: '20px' }}>
+            <div className="card-header" style={{ padding: '15px 20px' }}>
+              <div style={{ display: 'flex', gap: '20px', borderBottom: '2px solid var(--fb-border)' }}>
+                <button
+                  onClick={() => handleTabChange('posts')}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    padding: '10px 0',
+                    cursor: 'pointer',
+                    borderBottom: activeTab === 'posts' ? '2px solid var(--fb-blue)' : '2px solid transparent',
+                    color: activeTab === 'posts' ? 'var(--fb-blue)' : 'var(--fb-text-light)',
+                    fontWeight: activeTab === 'posts' ? 'bold' : 'normal',
+                    marginBottom: '-2px'
+                  }}
+                >
+                  Посты ({userPosts.length})
+                </button>
+                <button
+                  onClick={() => handleTabChange('liked')}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    padding: '10px 0',
+                    cursor: 'pointer',
+                    borderBottom: activeTab === 'liked' ? '2px solid var(--fb-blue)' : '2px solid transparent',
+                    color: activeTab === 'liked' ? 'var(--fb-blue)' : 'var(--fb-text-light)',
+                    fontWeight: activeTab === 'liked' ? 'bold' : 'normal',
+                    marginBottom: '-2px'
+                  }}
+                >
+                  <FaThumbsUp style={{ marginRight: '5px' }} />
+                  Лайкнутые ({likedPosts.length})
+                </button>
+              </div>
+            </div>
+            <div className="card-body" style={{ padding: '20px' }}>
+              {loadingPosts ? (
+                <div className="loading">Загрузка...</div>
+              ) : activeTab === 'posts' ? (
+                userPosts.length > 0 ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                    {userPosts.map(post => (
+                      <PostCard key={post.id} post={post} />
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{ textAlign: 'center', padding: '30px', color: 'var(--fb-text-light)' }}>
+                    {isOwnProfile ? 'Вы еще не создали ни одного поста' : 'У этого пользователя пока нет постов'}
+                  </div>
+                )
+              ) : (
+                likedPosts.length > 0 ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                    {likedPosts.map(post => (
+                      <PostCard key={post.id} post={post} />
+                    ))}
+                  </div>
+                ) : (
+                  <div style={{ textAlign: 'center', padding: '30px', color: 'var(--fb-text-light)' }}>
+                    {isOwnProfile ? 'Вы еще не лайкнули ни одного поста' : 'Этот пользователь еще не лайкнул ни одного поста'}
+                  </div>
+                )
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </>

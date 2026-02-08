@@ -21,6 +21,9 @@ export const blogService = {
     formData.append('content', data.content);
     formData.append('is_published', data.is_published || true);
     
+    if (data.category_name) {
+      formData.append('category_name', data.category_name);
+    }
 
     if (data.images && data.images.length > 0) {
       data.images.forEach((image) => {
@@ -50,6 +53,7 @@ export const blogService = {
     if (data.title) formData.append('title', data.title);
     if (data.content) formData.append('content', data.content);
     if (data.is_published !== undefined) formData.append('is_published', data.is_published);
+    if (data.category_name !== undefined) formData.append('category_name', data.category_name || '');
 
     if (data.images && data.images.length > 0) {
       data.images.forEach((image) => {
@@ -109,6 +113,21 @@ export const blogService = {
 
   toggleLike: async (postId) => {
     const response = await api.post(`/blog/posts/${postId}/like/`);
+    return response.data;
+  },
+
+  getUserPosts: async (username) => {
+    const response = await api.get(`/blog/posts/user/${username}/`);
+    return response.data;
+  },
+
+  getUserLikedPosts: async (username) => {
+    const response = await api.get(`/blog/posts/user/${username}/liked/`);
+    return response.data;
+  },
+
+  search: async (query) => {
+    const response = await api.get(`/blog/search/?q=${encodeURIComponent(query)}`);
     return response.data;
   },
 };

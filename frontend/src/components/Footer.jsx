@@ -98,7 +98,7 @@ const Footer = () => {
             </h4>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
               <li style={{ marginBottom: '8px' }}>
-                Версия: 1.0
+                Версия: 1.1
               </li>
               <li style={{ marginBottom: '8px' }}>
                 Django + React

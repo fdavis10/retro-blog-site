@@ -1,11 +1,14 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { blogService } from '../services/blogService';
 import Header from '../components/Header';
 import RichTextEditor from '../components/RichTextEditor';
 import { FaImage, FaPaperclip } from 'react-icons/fa';
 
-const CreatePost = () => {
+const EditPost = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [categoryName, setCategoryName] = useState('');
@@ -13,9 +16,28 @@ const CreatePost = () => {
   const [attachments, setAttachments] = useState([]);
   const [isPublished, setIsPublished] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [loadingPost, setLoadingPost] = useState(true);
   const [error, setError] = useState('');
-  
-  const navigate = useNavigate();
+
+  useEffect(() => {
+    loadPost();
+  }, [id]);
+
+  const loadPost = async () => {
+    try {
+      setLoadingPost(true);
+      const post = await blogService.getPost(id);
+      setTitle(post.title);
+      setContent(post.content);
+      setCategoryName(post.category?.name || '');
+      setIsPublished(post.is_published);
+    } catch (err) {
+      setError('Ошибка загрузки поста');
+      console.error(err);
+    } finally {
+      setLoadingPost(false);
+    }
+  };
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
@@ -52,7 +74,7 @@ const CreatePost = () => {
     setLoading(true);
 
     try {
-      await blogService.createPost({
+      await blogService.updatePost(id, {
         title,
         content,
         category_name: categoryName,
@@ -61,14 +83,25 @@ const CreatePost = () => {
         is_published: isPublished,
       });
 
-      navigate('/');
+      navigate(`/post/${id}`);
     } catch (err) {
-      setError(err.response?.data?.error || 'Ошибка создания поста');
+      setError(err.response?.data?.error || 'Ошибка обновления поста');
       console.error(err);
     } finally {
       setLoading(false);
     }
   };
+
+  if (loadingPost) {
+    return (
+      <>
+        <Header />
+        <div className="container" style={{ paddingTop: '20px' }}>
+          <div className="loading">Загрузка...</div>
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
@@ -77,7 +110,7 @@ const CreatePost = () => {
         <div style={{ maxWidth: '700px', margin: '0 auto' }}>
           <div className="card">
             <div className="card-header">
-              Создать новый пост
+              Редактировать пост
             </div>
             
             <div className="card-body">
@@ -122,13 +155,13 @@ const CreatePost = () => {
                     placeholder="Введите название рубрики"
                   />
                   <small style={{ fontSize: '12px', color: 'var(--fb-text-light)', marginTop: '5px', display: 'block' }}>
-                    Если рубрика новая, ей будет автоматически присвоен цвет
+                    Оставьте пустым, чтобы удалить рубрику
                   </small>
                 </div>
 
                 {/* Изображения */}
                 <div className="form-group">
-                  <label className="form-label">Изображения</label>
+                  <label className="form-label">Добавить изображения</label>
                   <input
                     type="file"
                     className="form-control"
@@ -165,7 +198,7 @@ const CreatePost = () => {
 
                 {/* Вложения */}
                 <div className="form-group">
-                  <label className="form-label">Вложения (аудио, документы)</label>
+                  <label className="form-label">Добавить вложения (аудио, документы)</label>
                   <input
                     type="file"
                     className="form-control"
@@ -210,7 +243,7 @@ const CreatePost = () => {
                       style={{ marginRight: '8px' }}
                     />
                     <span className="form-label" style={{ marginBottom: 0 }}>
-                      Опубликовать сразу
+                      Опубликовано
                     </span>
                   </label>
                 </div>
@@ -222,13 +255,13 @@ const CreatePost = () => {
                     className="btn btn-primary"
                     disabled={loading}
                   >
-                    {loading ? 'Создание...' : 'Создать пост'}
+                    {loading ? 'Сохранение...' : 'Сохранить изменения'}
                   </button>
                   
                   <button 
                     type="button" 
                     className="btn btn-secondary"
-                    onClick={() => navigate('/')}
+                    onClick={() => navigate(`/post/${id}`)}
                   >
                     Отмена
                   </button>
@@ -242,4 +275,4 @@ const CreatePost = () => {
   );
 };
 
-export default CreatePost;
+export default EditPost;

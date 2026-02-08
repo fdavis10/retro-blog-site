@@ -11,6 +11,8 @@ import Messages from './pages/Messages';
 import PostDetail from './pages/PostDetail';
 import AdminPanel from './pages/AdminPanel';
 import CreatePost from './pages/CreatePost';
+import EditPost from './pages/EditPost';
+import Search from './pages/Search';
 import './styles//App.css';
 
 const PrivateRoute = ({ children }) => {
@@ -100,9 +102,19 @@ function App() {
             </PrivateRoute>
           } />
           <Route path="/create-post" element={
-            <AdminRoute>
+            <PrivateRoute>
               <CreatePost />
-            </AdminRoute>
+            </PrivateRoute>
+          } />
+          <Route path="/post/:id/edit" element={
+            <PrivateRoute>
+              <EditPost />
+            </PrivateRoute>
+          } />
+          <Route path="/search" element={
+            <PrivateRoute>
+              <Search />
+            </PrivateRoute>
           } />
         </Routes>
       </AuthProvider>
