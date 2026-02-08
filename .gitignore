@@ -71,3 +71,5 @@ build/
 dist/
 .env
 .env
+docker-compose.production.yml
+DEPLOYMENT_CHECKLIST.md
