@@ -7,6 +7,8 @@ import Register from './pages/Register';
 import Profile from './pages/Profile';
 import ProfileEdit from './pages/ProfileEdit';
 import Friends from './pages/Friends';
+import Messages from './pages/Messages';
+import PostDetail from './pages/PostDetail';
 import AdminPanel from './pages/AdminPanel';
 import CreatePost from './pages/CreatePost';
 import './styles//App.css';
@@ -76,6 +78,27 @@ function App() {
             </PrivateRoute>
           } />
           
+          <Route path="/messages" element={
+            <PrivateRoute>
+              <Messages />
+            </PrivateRoute>
+          } />
+          <Route path="/messages/:conversationId" element={
+            <PrivateRoute>
+              <Messages />
+            </PrivateRoute>
+          } />
+          <Route path="/messages/new/:username" element={
+            <PrivateRoute>
+              <Messages />
+            </PrivateRoute>
+          } />
+          
+          <Route path="/post/:id" element={
+            <PrivateRoute>
+              <PostDetail />
+            </PrivateRoute>
+          } />
           <Route path="/create-post" element={
             <AdminRoute>
               <CreatePost />

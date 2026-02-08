@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import NotificationBell from './NotificationBell';
-import { FaBars, FaTimes, FaHome, FaUser, FaUserFriends, FaPlus, FaCog, FaSignOutAlt } from 'react-icons/fa';
+import { FaBars, FaTimes, FaHome, FaUser, FaUserFriends, FaPlus, FaCog, FaSignOutAlt, FaEnvelope, FaBell } from 'react-icons/fa';
 
 const Header = () => {
   const { user, logout, isAdmin, isSuperuser } = useAuth();
@@ -15,21 +15,28 @@ const Header = () => {
     navigate('/login');
   };
 
-  const navLinks = (
+  const navLinksBeforeLogout = (
     <>
       <Link to="/" className="header-nav-item" title="Главная" onClick={() => setMenuOpen(false)}>
         <FaHome className="header-icon" />
         <span className="header-nav-label">Главная</span>
       </Link>
       
-      <Link to={`/profile/${user?.username}`} className="header-nav-item" title="Профиль" onClick={() => setMenuOpen(false)}>
-        <FaUser className="header-icon" />
-        <span className="header-nav-label">Профиль</span>
-      </Link>
+      {user?.username && (
+        <Link to={`/profile/${user.username}`} className="header-nav-item" title="Профиль" onClick={() => setMenuOpen(false)}>
+          <FaUser className="header-icon" />
+          <span className="header-nav-label">Профиль</span>
+        </Link>
+      )}
 
       <Link to="/friends" className="header-nav-item" title="Друзья" onClick={() => setMenuOpen(false)}>
         <FaUserFriends className="header-icon" />
         <span className="header-nav-label">Друзья</span>
+      </Link>
+
+      <Link to="/messages" className="header-nav-item" title="Сообщения" onClick={() => setMenuOpen(false)}>
+        <FaEnvelope className="header-icon" />
+        <span className="header-nav-label">Сообщения</span>
       </Link>
 
       {isAdmin && (
@@ -45,25 +52,43 @@ const Header = () => {
           <span className="header-nav-label">Админка</span>
         </Link>
       )}
-
-      <button 
-        onClick={handleLogout} 
-        className="header-nav-item header-nav-btn" 
-        title="Выход"
-        type="button"
-      >
-        <FaSignOutAlt className="header-icon" />
-        <span className="header-nav-label">Выход</span>
-      </button>
     </>
   );
 
+  const logoutButton = (
+    <button 
+      onClick={handleLogout} 
+      className="header-nav-item header-nav-btn" 
+      title="Выход"
+      type="button"
+    >
+      <FaSignOutAlt className="header-icon" />
+      <span className="header-nav-label">Выход</span>
+    </button>
+  );
+
+  // Пункт меню "Уведомления" для мобильной версии
+  const notificationMenuItem = (
+    <NotificationBell mobileMode={true} onMenuClose={() => setMenuOpen(false)} />
+  );
+
+  // Десктопная версия: уведомления перед кнопкой выхода
   const navLinksWithBell = (
     <>
-      {navLinks}
+      {navLinksBeforeLogout}
       <div className="header-nav-item-wrapper">
         <NotificationBell />
       </div>
+      {logoutButton}
+    </>
+  );
+
+  // Мобильное меню с уведомлениями
+  const mobileNavLinks = (
+    <>
+      {navLinksBeforeLogout}
+      {notificationMenuItem}
+      {logoutButton}
     </>
   );
 
@@ -88,12 +113,9 @@ const Header = () => {
           {user && navLinksWithBell}
         </nav>
 
-        {/* Мобильный: колокольчик + бургер */}
+        {/* Мобильный: бургер */}
         {user && (
           <div className="header-mobile-actions">
-            <div className="header-bell-mobile">
-              <NotificationBell />
-            </div>
             <button
               type="button"
               className="header-burger"
@@ -116,7 +138,7 @@ const Header = () => {
           onClick={(e) => e.stopPropagation()}
         >
           <nav className="header-burger-nav">
-            {navLinks}
+            {mobileNavLinks}
           </nav>
         </div>
       )}

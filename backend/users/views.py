@@ -47,6 +47,8 @@ class LoginView(views.APIView):
                 status=status.HTTP_403_FORBIDDEN
             )
         
+        User.objects.filter(pk=user.pk).update(last_seen=timezone.now())
+        
         # Создаем токены
         refresh = RefreshToken.for_user(user)
         

@@ -11,6 +11,7 @@ urlpatterns = [
     path('api/blog/', include('blog.urls')),
     path('api/notifications/', include('notifications.urls')),
     path('api/friends/', include('friends.urls')),
+    path('api/messages/', include('messages_app.urls')),
 ]
 
 # Serve media files in development

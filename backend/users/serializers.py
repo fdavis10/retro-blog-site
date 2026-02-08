@@ -23,15 +23,23 @@ class ProfileSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     """Сериализатор пользователя с профилем"""
     profile = ProfileSerializer(read_only=True)
-    
+    is_online = serializers.SerializerMethodField()
+
     class Meta:
         model = User
         fields = [
             'id', 'username', 'email', 'first_name', 'last_name',
             'is_approved', 'is_admin_user', 'is_staff', 'is_superuser',
-            'created_at', 'profile'
+            'created_at', 'last_seen', 'is_online', 'profile'
         ]
-        read_only_fields = ['id', 'created_at', 'is_approved', 'is_admin_user', 'is_staff', 'is_superuser']
+        read_only_fields = ['id', 'created_at', 'is_approved', 'is_admin_user', 'is_staff', 'is_superuser', 'last_seen']
+
+    def get_is_online(self, obj):
+        from django.utils import timezone
+        from datetime import timedelta
+        if not obj.last_seen:
+            return False
+        return (timezone.now() - obj.last_seen) < timedelta(minutes=5)
 
 
 class UserCreateSerializer(serializers.ModelSerializer):

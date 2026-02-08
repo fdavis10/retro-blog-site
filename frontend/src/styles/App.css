@@ -634,6 +634,24 @@ textarea.form-control {
   animation: bell-ring 0.5s ease-in-out;
 }
 
+/* Уведомления — стиль Facebook 2010 */
+.notification-dropdown {
+  font-family: 'Lucida Grande', 'Segoe UI', Tahoma, Verdana, Arial, sans-serif;
+}
+
+@media (max-width: 768px) {
+  .notification-dropdown {
+    position: fixed !important;
+    top: 50px !important;
+    left: 10px !important;
+    right: 10px !important;
+    width: auto !important;
+    max-width: none !important;
+    max-height: 70vh !important;
+    margin: 0 !important;
+  }
+}
+
 .profile-section {
   margin-bottom: 15px;
   padding-bottom: 15px;
@@ -674,3 +692,307 @@ div[style*="maxHeight: 500px"]::-webkit-scrollbar-thumb {
 div[style*="maxHeight: 500px"]::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
+
+/* Messages */
+.messages-page {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: calc(100vh - 50px);
+  padding: 20px 10px;
+}
+
+.messages-layout {
+  display: flex;
+  flex: 1;
+  max-width: 980px;
+  margin: 0 auto;
+  width: 100%;
+  border: 1px solid var(--fb-border);
+  border-radius: 3px;
+  background: var(--fb-white);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.messages-sidebar {
+  width: 320px;
+  min-width: 280px;
+  border-right: 1px solid var(--fb-border);
+  display: flex;
+  flex-direction: column;
+}
+
+.messages-sidebar-header {
+  padding: 12px 15px;
+  border-bottom: 1px solid var(--fb-border);
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.messages-conversations-list {
+  flex: 1;
+  overflow-y: auto;
+  max-height: calc(100vh - 120px);
+}
+
+.messages-conversation-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 15px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--fb-hover);
+  position: relative;
+  transition: background-color 0.2s;
+}
+
+.messages-conversation-item:hover {
+  background-color: var(--fb-hover);
+}
+
+.messages-conversation-item.active {
+  background-color: #e7f3ff;
+}
+
+.messages-conv-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.messages-conv-name {
+  font-weight: bold;
+  font-size: 13px;
+  color: var(--fb-text);
+}
+
+.messages-conv-preview {
+  font-size: 12px;
+  color: var(--fb-text-light);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.messages-unread-badge {
+  background: var(--fb-blue);
+  color: white;
+  font-size: 11px;
+  font-weight: bold;
+  padding: 2px 8px;
+  border-radius: 10px;
+  min-width: 20px;
+  text-align: center;
+}
+
+.messages-empty {
+  padding: 30px 15px;
+  text-align: center;
+  color: var(--fb-text-light);
+  font-size: 13px;
+}
+
+.messages-chat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.messages-chat-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 15px;
+  border-bottom: 1px solid var(--fb-border);
+}
+
+.messages-chat-header-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.messages-chat-name {
+  font-weight: bold;
+  font-size: 14px;
+}
+
+.messages-chat-username {
+  font-size: 12px;
+  color: var(--fb-text-light);
+}
+
+.messages-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: calc(100vh - 260px);
+}
+
+.message-bubble {
+  max-width: 75%;
+  align-self: flex-start;
+  padding: 10px 14px;
+  background: var(--fb-hover);
+  border-radius: 12px;
+  border-bottom-left-radius: 2px;
+}
+
+.message-bubble.own {
+  align-self: flex-end;
+  background: linear-gradient(#4e69a2, #3b5998);
+  color: white;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 2px;
+}
+
+.message-bubble.own .message-meta {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.message-text {
+  font-size: 14px;
+  line-height: 1.4;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.message-meta {
+  font-size: 11px;
+  color: var(--fb-text-light);
+  margin-top: 4px;
+}
+
+.messages-input-form {
+  padding: 12px 15px;
+  border-top: 1px solid var(--fb-border);
+}
+
+.messages-input-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.messages-input {
+  flex: 1;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-family: inherit;
+  border: 1px solid var(--fb-border);
+  resize: none;
+  min-height: 40px;
+  max-height: 120px;
+}
+
+.messages-input:focus {
+  outline: none;
+  border-color: var(--fb-blue);
+}
+
+.messages-select-hint {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--fb-text-light);
+  font-size: 14px;
+}
+
+/* Мобильный layout сообщений — полноэкранный чат в стиле Facebook 2010 */
+.messages-back-btn {
+  background: none;
+  border: none;
+  padding: 8px 12px;
+  margin: -4px 0 -4px -8px;
+  cursor: pointer;
+  color: var(--fb-white);
+  border-radius: 2px;
+}
+
+.messages-back-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.messages-chat-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+@media (max-width: 768px) {
+  .messages-page {
+    padding: 0;
+  }
+
+  .messages-layout {
+    flex-direction: row;
+    max-width: 100%;
+    border: none;
+    border-radius: 0;
+  }
+
+  .messages-layout-mobile .messages-sidebar {
+    width: 100%;
+    min-width: 0;
+    max-height: none;
+    border-right: none;
+  }
+
+  .messages-layout-mobile .messages-sidebar-hidden {
+    display: none !important;
+  }
+
+  .messages-layout-mobile {
+    position: relative;
+  }
+
+  .messages-layout-mobile .messages-chat {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    background: var(--fb-white);
+    z-index: 10;
+  }
+
+  .messages-layout-mobile .messages-chat-hidden {
+    display: none !important;
+  }
+
+  .messages-layout-mobile .messages-chat-header {
+    background: linear-gradient(#4e69a2, #3b5998);
+    color: white;
+    padding: 12px 15px;
+    border-bottom: 1px solid var(--fb-blue-dark);
+  }
+
+  .messages-layout-mobile .messages-chat-name,
+  .messages-layout-mobile .messages-chat-username {
+    color: rgba(255, 255, 255, 0.95);
+  }
+
+  .messages-layout-mobile .messages-chat-username {
+    color: rgba(255, 255, 255, 0.8);
+  }
+
+  .messages-conversations-list {
+    max-height: calc(100vh - 70px);
+  }
+
+  .messages-list {
+    max-height: calc(100vh - 200px);
+  }
+}
+
+textarea::-webkit-scrollbar {
+  width: 0px;
+  height: 0px;
+  }

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { FaEdit, FaMapMarkerAlt, FaLink, FaBirthdayCake, FaHeart, FaMusic, FaFilm, FaBook } from 'react-icons/fa';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { FaEdit, FaMapMarkerAlt, FaLink, FaBirthdayCake, FaHeart, FaMusic, FaFilm, FaBook, FaEnvelope, FaCircle } from 'react-icons/fa';
 import { authService } from '../services/authService';
 import { useAuth } from '../context/AuthContext';
 import Header from '../components/Header';
@@ -9,6 +9,7 @@ import FriendshipButton from '../components/FriendshipButton';
 
 const Profile = () => {
   const { username } = useParams();
+  const navigate = useNavigate();
   const { user: currentUser } = useAuth();
   
   const [user, setUser] = useState(null);
@@ -40,6 +41,60 @@ const Profile = () => {
     const choice = choices.find(c => c[0] === value);
     return choice ? choice[1] : value;
   };
+
+  // Вычисляем информацию о последнем визите
+  const getLastSeenInfo = () => {
+    if (!user) return null;
+    
+    // Если пользователь онлайн
+    if (user.is_online) {
+      return {
+        online: true,
+        text: 'В сети'
+      };
+    }
+    
+    // Если есть информация о last_seen
+    if (user.last_seen) {
+      const lastSeen = new Date(user.last_seen);
+      const now = new Date();
+      const diffMs = now - lastSeen;
+      const diffMins = Math.floor(diffMs / 60000);
+      const diffHours = Math.floor(diffMs / 3600000);
+      const diffDays = Math.floor(diffMs / 86400000);
+      
+      if (diffMins < 1) {
+        return {
+          online: false,
+          text: 'только что'
+        };
+      } else if (diffMins < 60) {
+        return {
+          online: false,
+          text: `${diffMins} ${diffMins === 1 ? 'минуту' : diffMins < 5 ? 'минуты' : 'минут'} назад`
+        };
+      } else if (diffHours < 24) {
+        return {
+          online: false,
+          text: `${diffHours} ${diffHours === 1 ? 'час' : diffHours < 5 ? 'часа' : 'часов'} назад`
+        };
+      } else if (diffDays < 7) {
+        return {
+          online: false,
+          text: `${diffDays} ${diffDays === 1 ? 'день' : diffDays < 5 ? 'дня' : 'дней'} назад`
+        };
+      } else {
+        return {
+          online: false,
+          text: lastSeen.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' })
+        };
+      }
+    }
+    
+    return null;
+  };
+
+  const lastSeenInfo = getLastSeenInfo();
 
   if (loading) {
     return (
@@ -99,76 +154,120 @@ const Profile = () => {
   return (
     <>
       <Header />
-      <div className="container" style={{ paddingTop: '20px', paddingBottom: '20px' }}>
-        <div style={{ maxWidth: '700px', margin: '0 auto' }}>
+      <div className="container" style={{ paddingTop: '30px', paddingBottom: '30px' }}>
+        <div style={{ maxWidth: '800px', margin: '0 auto' }}>
           <div className="card">
-            <div className="card-body">
-              <div style={{ display: 'flex', gap: '20px', alignItems: 'flex-start' }}>
+            <div className="card-body" style={{ padding: '25px' }}>
+              <div style={{ display: 'flex', gap: '30px', alignItems: 'flex-start' }}>
                 <Avatar user={user} size="xl" />
 
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
-                    <div>
-                      <h2 style={{ marginBottom: '5px' }}>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px', flexWrap: 'wrap', gap: '15px' }}>
+                    <div style={{ flex: 1, minWidth: 200 }}>
+                      <h2 style={{ marginBottom: '8px', fontSize: '20px', fontWeight: 'bold' }}>
                         {user.first_name && user.last_name 
                           ? `${user.first_name} ${user.last_name}`
                           : user.username
                         }
                       </h2>
-                      <div style={{ fontSize: '13px', color: 'var(--fb-text-light)' }}>
+                      <div style={{ fontSize: '13px', color: 'var(--fb-text-light)', marginBottom: '15px' }}>
                         @{user.username}
+                        {lastSeenInfo && (
+                          <span
+                            style={{
+                              marginLeft: '10px',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '6px',
+                              color: lastSeenInfo.online ? 'var(--fb-green)' : 'var(--fb-text-light)',
+                              fontSize: '12px',
+                            }}
+                          >
+                            {lastSeenInfo.online && (
+                              <FaCircle size={6} style={{ color: 'var(--fb-green)' }} />
+                            )}
+                            {lastSeenInfo.text}
+                          </span>
+                        )}
                       </div>
                     </div>
 
-                    {isOwnProfile ? (
-                      <Link to="/profile/edit" className="btn btn-secondary btn-sm">
-                        <FaEdit /> Редактировать
-                      </Link>
-                    ) : (
-                      <FriendshipButton user={user} onStatusChange={loadProfile} />
-                    )}
+                    <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
+                      {isOwnProfile ? (
+                        <Link to="/profile/edit" className="btn btn-secondary btn-sm">
+                          <FaEdit /> Редактировать
+                        </Link>
+                      ) : (
+                        <>
+                          <Link
+                            to={`/messages/new/${user.username}`}
+                            className="btn btn-primary btn-sm"
+                          >
+                            <FaEnvelope /> Написать
+                          </Link>
+                          <FriendshipButton user={user} onStatusChange={loadProfile} />
+                        </>
+                      )}
+                    </div>
                   </div>
 
                   {user.profile?.bio && (
                     <div style={{ 
-                      padding: '10px', 
+                      padding: '15px', 
                       backgroundColor: 'var(--fb-hover)', 
                       borderRadius: '3px',
-                      marginBottom: '15px',
-                      fontSize: '13px'
+                      marginBottom: '20px',
+                      fontSize: '13px',
+                      lineHeight: '1.5'
                     }}>
                       {user.profile.bio}
                     </div>
                   )}
 
-                  <div style={{ fontSize: '13px', color: 'var(--fb-text)' }}>
+                  <div style={{ 
+                    display: 'flex', 
+                    flexDirection: 'column', 
+                    gap: '12px',
+                    fontSize: '13px', 
+                    color: 'var(--fb-text)',
+                    marginBottom: '15px'
+                  }}>
                     {user.profile?.location && (
-                      <div style={{ marginBottom: '5px' }}>
-                        <FaMapMarkerAlt style={{ marginRight: '5px' }} /> {user.profile.location}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <FaMapMarkerAlt style={{ color: 'var(--fb-text-light)', fontSize: '14px' }} /> 
+                        <span>{user.profile.location}</span>
                       </div>
                     )}
                     
                     {user.profile?.website && (
-                      <div style={{ marginBottom: '5px' }}>
-                        <FaLink style={{ marginRight: '5px' }} /> 
-                        <a href={user.profile.website} target="_blank" rel="noopener noreferrer">
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <FaLink style={{ color: 'var(--fb-text-light)', fontSize: '14px' }} /> 
+                        <a href={user.profile.website} target="_blank" rel="noopener noreferrer" style={{ color: 'var(--fb-blue)' }}>
                           {user.profile.website}
                         </a>
                       </div>
                     )}
 
                     {user.profile?.birth_date && (
-                      <div style={{ marginBottom: '5px' }}>
-                        <FaBirthdayCake style={{ marginRight: '5px' }} /> 
-                        {new Date(user.profile.birth_date).toLocaleDateString('ru-RU', { 
-                          day: 'numeric', 
-                          month: 'long', 
-                          year: 'numeric' 
-                        })}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <FaBirthdayCake style={{ color: 'var(--fb-text-light)', fontSize: '14px' }} /> 
+                        <span>
+                          {new Date(user.profile.birth_date).toLocaleDateString('ru-RU', { 
+                            day: 'numeric', 
+                            month: 'long', 
+                            year: 'numeric' 
+                          })}
+                        </span>
                       </div>
                     )}
 
-                    <div style={{ marginTop: '10px', color: 'var(--fb-text-light)', fontSize: '12px' }}>
+                    <div style={{ 
+                      marginTop: '5px', 
+                      paddingTop: '15px',
+                      borderTop: '1px solid var(--fb-border)',
+                      color: 'var(--fb-text-light)', 
+                      fontSize: '12px' 
+                    }}>
                       На сайте с {new Date(user.created_at).toLocaleDateString('ru-RU', { 
                         month: 'long', 
                         year: 'numeric' 
@@ -178,14 +277,15 @@ const Profile = () => {
 
                   {user.is_admin_user && (
                     <div style={{ 
-                      marginTop: '10px',
-                      padding: '5px 10px',
+                      marginTop: '15px',
+                      padding: '8px 14px',
                       backgroundColor: 'var(--fb-blue)',
                       color: 'white',
                       borderRadius: '3px',
                       fontSize: '11px',
                       display: 'inline-block',
-                      fontWeight: 'bold'
+                      fontWeight: 'bold',
+                      letterSpacing: '0.5px'
                     }}>
                       АДМИНИСТРАТОР
                     </div>
@@ -206,114 +306,179 @@ const Profile = () => {
             user.profile?.smoking ||
             user.profile?.drinking ||
             user.profile?.life_position) && (
-            <div className="card" style={{ marginTop: '10px' }}>
-              <div className="card-header">
+            <div className="card" style={{ marginTop: '20px' }}>
+              <div className="card-header" style={{ padding: '15px 20px' }}>
                 Дополнительная информация
               </div>
-              <div className="card-body">
-                {user.profile?.relationship_status && (
-                  <div style={{ marginBottom: '10px' }}>
-                    <div style={{ fontSize: '11px', color: 'var(--fb-text-light)', marginBottom: '3px' }}>
-                      <FaHeart style={{ marginRight: '5px' }} /> Семейное положение
+              <div className="card-body" style={{ padding: '20px 25px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                  {user.profile?.relationship_status && (
+                    <div>
+                      <div style={{ 
+                        fontSize: '11px', 
+                        color: 'var(--fb-text-light)', 
+                        marginBottom: '6px',
+                        fontWeight: 'bold',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px'
+                      }}>
+                        <FaHeart style={{ marginRight: '6px', fontSize: '12px' }} /> Семейное положение
+                      </div>
+                      <div style={{ fontSize: '13px', color: 'var(--fb-text)' }}>
+                        {getChoiceDisplay(user.profile.relationship_status, relationshipChoices)}
+                      </div>
                     </div>
-                    <div style={{ fontSize: '13px' }}>
-                      {getChoiceDisplay(user.profile.relationship_status, relationshipChoices)}
-                    </div>
-                  </div>
-                )}
+                  )}
 
-                {user.profile?.political_views && (
-                  <div style={{ marginBottom: '10px' }}>
-                    <div style={{ fontSize: '11px', color: 'var(--fb-text-light)', marginBottom: '3px' }}>
-                      Политические взгляды
+                  {user.profile?.political_views && (
+                    <div>
+                      <div style={{ 
+                        fontSize: '11px', 
+                        color: 'var(--fb-text-light)', 
+                        marginBottom: '6px',
+                        fontWeight: 'bold',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px'
+                      }}>
+                        Политические взгляды
+                      </div>
+                      <div style={{ fontSize: '13px', color: 'var(--fb-text)' }}>
+                        {getChoiceDisplay(user.profile.political_views, politicalChoices)}
+                      </div>
                     </div>
-                    <div style={{ fontSize: '13px' }}>
-                      {getChoiceDisplay(user.profile.political_views, politicalChoices)}
-                    </div>
-                  </div>
-                )}
+                  )}
 
-                {user.profile?.religious_views && (
-                  <div style={{ marginBottom: '10px' }}>
-                    <div style={{ fontSize: '11px', color: 'var(--fb-text-light)', marginBottom: '3px' }}>
-                      Религиозные взгляды
+                  {user.profile?.religious_views && (
+                    <div>
+                      <div style={{ 
+                        fontSize: '11px', 
+                        color: 'var(--fb-text-light)', 
+                        marginBottom: '6px',
+                        fontWeight: 'bold',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px'
+                      }}>
+                        Религиозные взгляды
+                      </div>
+                      <div style={{ fontSize: '13px', color: 'var(--fb-text)', lineHeight: '1.5' }}>
+                        {user.profile.religious_views}
+                      </div>
                     </div>
-                    <div style={{ fontSize: '13px' }}>
-                      {user.profile.religious_views}
-                    </div>
-                  </div>
-                )}
+                  )}
 
-                {user.profile?.interests && (
-                  <div style={{ marginBottom: '10px' }}>
-                    <div style={{ fontSize: '11px', color: 'var(--fb-text-light)', marginBottom: '3px' }}>
-                      Интересы
+                  {user.profile?.interests && (
+                    <div>
+                      <div style={{ 
+                        fontSize: '11px', 
+                        color: 'var(--fb-text-light)', 
+                        marginBottom: '6px',
+                        fontWeight: 'bold',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px'
+                      }}>
+                        Интересы
+                      </div>
+                      <div style={{ fontSize: '13px', whiteSpace: 'pre-wrap', color: 'var(--fb-text)', lineHeight: '1.6' }}>
+                        {user.profile.interests}
+                      </div>
                     </div>
-                    <div style={{ fontSize: '13px', whiteSpace: 'pre-wrap' }}>
-                      {user.profile.interests}
-                    </div>
-                  </div>
-                )}
+                  )}
 
-                {user.profile?.favorite_music && (
-                  <div style={{ marginBottom: '10px' }}>
-                    <div style={{ fontSize: '11px', color: 'var(--fb-text-light)', marginBottom: '3px' }}>
-                      <FaMusic style={{ marginRight: '5px' }} /> Любимая музыка
+                  {user.profile?.favorite_music && (
+                    <div>
+                      <div style={{ 
+                        fontSize: '11px', 
+                        color: 'var(--fb-text-light)', 
+                        marginBottom: '6px',
+                        fontWeight: 'bold',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px'
+                      }}>
+                        <FaMusic style={{ marginRight: '6px', fontSize: '12px' }} /> Любимая музыка
+                      </div>
+                      <div style={{ fontSize: '13px', whiteSpace: 'pre-wrap', color: 'var(--fb-text)', lineHeight: '1.6' }}>
+                        {user.profile.favorite_music}
+                      </div>
                     </div>
-                    <div style={{ fontSize: '13px', whiteSpace: 'pre-wrap' }}>
-                      {user.profile.favorite_music}
-                    </div>
-                  </div>
-                )}
+                  )}
 
-                {user.profile?.favorite_movies && (
-                  <div style={{ marginBottom: '10px' }}>
-                    <div style={{ fontSize: '11px', color: 'var(--fb-text-light)', marginBottom: '3px' }}>
-                      <FaFilm style={{ marginRight: '5px' }} /> Любимые фильмы
+                  {user.profile?.favorite_movies && (
+                    <div>
+                      <div style={{ 
+                        fontSize: '11px', 
+                        color: 'var(--fb-text-light)', 
+                        marginBottom: '6px',
+                        fontWeight: 'bold',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px'
+                      }}>
+                        <FaFilm style={{ marginRight: '6px', fontSize: '12px' }} /> Любимые фильмы
+                      </div>
+                      <div style={{ fontSize: '13px', whiteSpace: 'pre-wrap', color: 'var(--fb-text)', lineHeight: '1.6' }}>
+                        {user.profile.favorite_movies}
+                      </div>
                     </div>
-                    <div style={{ fontSize: '13px', whiteSpace: 'pre-wrap' }}>
-                      {user.profile.favorite_movies}
-                    </div>
-                  </div>
-                )}
+                  )}
 
-                {user.profile?.favorite_books && (
-                  <div style={{ marginBottom: '10px' }}>
-                    <div style={{ fontSize: '11px', color: 'var(--fb-text-light)', marginBottom: '3px' }}>
-                      <FaBook style={{ marginRight: '5px' }} /> Любимые книги
+                  {user.profile?.favorite_books && (
+                    <div>
+                      <div style={{ 
+                        fontSize: '11px', 
+                        color: 'var(--fb-text-light)', 
+                        marginBottom: '6px',
+                        fontWeight: 'bold',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px'
+                      }}>
+                        <FaBook style={{ marginRight: '6px', fontSize: '12px' }} /> Любимые книги
+                      </div>
+                      <div style={{ fontSize: '13px', whiteSpace: 'pre-wrap', color: 'var(--fb-text)', lineHeight: '1.6' }}>
+                        {user.profile.favorite_books}
+                      </div>
                     </div>
-                    <div style={{ fontSize: '13px', whiteSpace: 'pre-wrap' }}>
-                      {user.profile.favorite_books}
-                    </div>
-                  </div>
-                )}
+                  )}
 
-                {(user.profile?.smoking || user.profile?.drinking) && (
-                  <div style={{ marginBottom: '10px' }}>
-                    <div style={{ fontSize: '11px', color: 'var(--fb-text-light)', marginBottom: '3px' }}>
-                      Вредные привычки
+                  {(user.profile?.smoking || user.profile?.drinking) && (
+                    <div>
+                      <div style={{ 
+                        fontSize: '11px', 
+                        color: 'var(--fb-text-light)', 
+                        marginBottom: '6px',
+                        fontWeight: 'bold',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px'
+                      }}>
+                        Вредные привычки
+                      </div>
+                      <div style={{ fontSize: '13px', color: 'var(--fb-text)', lineHeight: '1.5' }}>
+                        {user.profile?.smoking && (
+                          <div style={{ marginBottom: '4px' }}>Курение: {getChoiceDisplay(user.profile.smoking, smokingChoices)}</div>
+                        )}
+                        {user.profile?.drinking && (
+                          <div>Алкоголь: {getChoiceDisplay(user.profile.drinking, drinkingChoices)}</div>
+                        )}
+                      </div>
                     </div>
-                    <div style={{ fontSize: '13px' }}>
-                      {user.profile?.smoking && (
-                        <div>Курение: {getChoiceDisplay(user.profile.smoking, smokingChoices)}</div>
-                      )}
-                      {user.profile?.drinking && (
-                        <div>Алкоголь: {getChoiceDisplay(user.profile.drinking, drinkingChoices)}</div>
-                      )}
-                    </div>
-                  </div>
-                )}
+                  )}
 
-                {user.profile?.life_position && (
-                  <div style={{ marginBottom: '10px' }}>
-                    <div style={{ fontSize: '11px', color: 'var(--fb-text-light)', marginBottom: '3px' }}>
-                      Жизненная позиция
+                  {user.profile?.life_position && (
+                    <div>
+                      <div style={{ 
+                        fontSize: '11px', 
+                        color: 'var(--fb-text-light)', 
+                        marginBottom: '6px',
+                        fontWeight: 'bold',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.5px'
+                      }}>
+                        Жизненная позиция
+                      </div>
+                      <div style={{ fontSize: '13px', whiteSpace: 'pre-wrap', color: 'var(--fb-text)', lineHeight: '1.6' }}>
+                        {user.profile.life_position}
+                      </div>
                     </div>
-                    <div style={{ fontSize: '13px', whiteSpace: 'pre-wrap' }}>
-                      {user.profile.life_position}
-                    </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             </div>
           )}

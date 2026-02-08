@@ -24,6 +24,12 @@ class User(AbstractUser):
     )
     created_at = models.DateTimeField(_('дата регистрации'), auto_now_add=True)
     updated_at = models.DateTimeField(_('дата обновления'), auto_now=True)
+    last_seen = models.DateTimeField(
+        _('последняя активность'),
+        null=True,
+        blank=True,
+        help_text=_('Время последней активности на сайте')
+    )
 
     class Meta:
         verbose_name = _('пользователь')
