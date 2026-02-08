@@ -75,22 +75,39 @@ const CreatePost = () => {
       <Header />
       <div className="container" style={{ paddingTop: '20px', paddingBottom: '20px' }}>
         <div style={{ maxWidth: '700px', margin: '0 auto' }}>
-          <div className="card">
-            <div className="card-header">
+          <div className="card" style={{ borderRadius: '0', border: '1px solid var(--fb-border)' }}>
+            <div className="card-header" style={{ 
+              borderRadius: '0', 
+              borderBottom: '1px solid var(--fb-border)',
+              background: 'linear-gradient(#f6f7f8, #e9ebee)',
+              fontWeight: 'bold',
+              fontSize: '14px'
+            }}>
               Создать новый пост
             </div>
             
-            <div className="card-body">
+            <div className="card-body" style={{ padding: '20px' }}>
               <form onSubmit={handleSubmit}>
                 {error && (
-                  <div className="error" style={{ marginBottom: '15px' }}>
+                  <div className="error" style={{ 
+                    marginBottom: '15px',
+                    borderRadius: '0',
+                    border: '1px solid #dd3c10'
+                  }}>
                     {error}
                   </div>
                 )}
 
                 {/* Заголовок */}
-                <div className="form-group">
-                  <label className="form-label">Заголовок</label>
+                <div className="form-group" style={{ marginBottom: '20px' }}>
+                  <label className="form-label" style={{ 
+                    fontSize: '13px', 
+                    fontWeight: 'bold',
+                    marginBottom: '8px',
+                    color: 'var(--fb-text)'
+                  }}>
+                    Заголовок
+                  </label>
                   <input
                     type="text"
                     className="form-control"
@@ -98,62 +115,128 @@ const CreatePost = () => {
                     onChange={(e) => setTitle(e.target.value)}
                     placeholder="Введите заголовок поста"
                     required
+                    style={{
+                      borderRadius: '0',
+                      border: '1px solid var(--fb-border)',
+                      padding: '10px 12px',
+                      fontSize: '13px',
+                      fontFamily: 'inherit'
+                    }}
                   />
                 </div>
 
                 {/* Содержание */}
-                <div className="form-group">
-                  <label className="form-label">Содержание</label>
-                  <RichTextEditor
-                    value={content}
-                    onChange={setContent}
-                    placeholder="Напишите ваш пост здесь..."
-                  />
+                <div className="form-group" style={{ marginBottom: '20px' }}>
+                  <label className="form-label" style={{ 
+                    fontSize: '13px', 
+                    fontWeight: 'bold',
+                    marginBottom: '8px',
+                    color: 'var(--fb-text)'
+                  }}>
+                    Содержание
+                  </label>
+                  <div style={{
+                    border: '1px solid var(--fb-border)',
+                    borderRadius: '0'
+                  }}>
+                    <RichTextEditor
+                      value={content}
+                      onChange={setContent}
+                      placeholder="Напишите ваш пост здесь..."
+                    />
+                  </div>
                 </div>
 
-                {/* Рубрика */}
-                <div className="form-group">
-                  <label className="form-label">Рубрика (необязательно)</label>
+                {/* Рубрики */}
+                <div className="form-group" style={{ marginBottom: '20px' }}>
+                  <label className="form-label" style={{ 
+                    fontSize: '13px', 
+                    fontWeight: 'bold',
+                    marginBottom: '8px',
+                    color: 'var(--fb-text)'
+                  }}>
+                    Рубрики (необязательно)
+                  </label>
                   <input
                     type="text"
                     className="form-control"
                     value={categoryName}
                     onChange={(e) => setCategoryName(e.target.value)}
-                    placeholder="Введите название рубрики"
+                    placeholder="Например: Программирование, Кодинг"
+                    style={{
+                      borderRadius: '0',
+                      border: '1px solid var(--fb-border)',
+                      padding: '10px 12px',
+                      fontSize: '13px',
+                      fontFamily: 'inherit'
+                    }}
                   />
-                  <small style={{ fontSize: '12px', color: 'var(--fb-text-light)', marginTop: '5px', display: 'block' }}>
-                    Если рубрика новая, ей будет автоматически присвоен цвет
+                  <small style={{ 
+                    fontSize: '11px', 
+                    color: 'var(--fb-text-light)', 
+                    marginTop: '6px', 
+                    display: 'block',
+                    lineHeight: '1.4'
+                  }}>
+                    Укажите несколько рубрик через запятую. Если рубрика новая, ей будет автоматически присвоен цвет.
                   </small>
                 </div>
 
                 {/* Изображения */}
-                <div className="form-group">
-                  <label className="form-label">Изображения</label>
+                <div className="form-group" style={{ marginBottom: '20px' }}>
+                  <label className="form-label" style={{ 
+                    fontSize: '13px', 
+                    fontWeight: 'bold',
+                    marginBottom: '8px',
+                    color: 'var(--fb-text)'
+                  }}>
+                    Изображения
+                  </label>
                   <input
                     type="file"
                     className="form-control"
                     accept="image/*"
                     multiple
                     onChange={handleImageChange}
+                    style={{
+                      borderRadius: '0',
+                      border: '1px solid var(--fb-border)',
+                      padding: '8px 10px',
+                      fontSize: '13px',
+                      fontFamily: 'inherit'
+                    }}
                   />
                   {images.length > 0 && (
-                    <div style={{ marginTop: '10px' }}>
+                    <div style={{ marginTop: '12px' }}>
                       {images.map((image, index) => (
                         <div 
                           key={index}
                           style={{ 
                             display: 'flex', 
                             alignItems: 'center', 
-                            marginBottom: '5px',
+                            justifyContent: 'space-between',
+                            marginBottom: '8px',
+                            padding: '8px 10px',
+                            background: 'var(--fb-hover)',
+                            border: '1px solid var(--fb-border)',
+                            borderRadius: '0',
                             fontSize: '12px'
                           }}
                         >
-                          <span><FaImage style={{ marginRight: '5px' }} /> {image.name}</span>
+                          <span style={{ display: 'flex', alignItems: 'center' }}>
+                            <FaImage style={{ marginRight: '8px', color: 'var(--fb-text-light)' }} /> 
+                            {image.name}
+                          </span>
                           <button
                             type="button"
                             onClick={() => removeImage(index)}
                             className="btn btn-sm btn-danger"
-                            style={{ marginLeft: '10px' }}
+                            style={{ 
+                              marginLeft: '10px',
+                              borderRadius: '0',
+                              padding: '4px 10px',
+                              fontSize: '11px'
+                            }}
                           >
                             Удалить
                           </button>
@@ -164,33 +247,60 @@ const CreatePost = () => {
                 </div>
 
                 {/* Вложения */}
-                <div className="form-group">
-                  <label className="form-label">Вложения (аудио, документы)</label>
+                <div className="form-group" style={{ marginBottom: '20px' }}>
+                  <label className="form-label" style={{ 
+                    fontSize: '13px', 
+                    fontWeight: 'bold',
+                    marginBottom: '8px',
+                    color: 'var(--fb-text)'
+                  }}>
+                    Вложения (аудио, документы)
+                  </label>
                   <input
                     type="file"
                     className="form-control"
                     accept=".pdf,.doc,.docx,.mp3,.wav,.ogg"
                     multiple
                     onChange={handleAttachmentChange}
+                    style={{
+                      borderRadius: '0',
+                      border: '1px solid var(--fb-border)',
+                      padding: '8px 10px',
+                      fontSize: '13px',
+                      fontFamily: 'inherit'
+                    }}
                   />
                   {attachments.length > 0 && (
-                    <div style={{ marginTop: '10px' }}>
+                    <div style={{ marginTop: '12px' }}>
                       {attachments.map((file, index) => (
                         <div 
                           key={index}
                           style={{ 
                             display: 'flex', 
                             alignItems: 'center', 
-                            marginBottom: '5px',
+                            justifyContent: 'space-between',
+                            marginBottom: '8px',
+                            padding: '8px 10px',
+                            background: 'var(--fb-hover)',
+                            border: '1px solid var(--fb-border)',
+                            borderRadius: '0',
                             fontSize: '12px'
                           }}
                         >
-                          <span><FaPaperclip style={{ marginRight: '5px' }} /> {file.name}</span>
+                          <span style={{ display: 'flex', alignItems: 'center' }}>
+                            <FaPaperclip style={{ marginRight: '8px', color: 'var(--fb-text-light)' }} /> 
+                            {file.name}
+                          </span>
                           <button
                             type="button"
                             onClick={() => removeAttachment(index)}
                             className="btn btn-sm btn-danger"
-                            style={{ marginLeft: '10px' }}
+                            style={{ 
+                              marginLeft: '10px',
+                              borderRadius: '0',
+                              padding: '4px 10px',
+                              fontSize: '11px'
+                            }}
                           >
                             Удалить
                           </button>
@@ -201,26 +311,49 @@ const CreatePost = () => {
                 </div>
 
                 {/* Опубликовать */}
-                <div className="form-group">
-                  <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+                <div className="form-group" style={{ marginBottom: '20px' }}>
+                  <label style={{ 
+                    display: 'flex', 
+                    alignItems: 'center', 
+                    cursor: 'pointer',
+                    fontSize: '13px',
+                    fontWeight: 'bold'
+                  }}>
                     <input
                       type="checkbox"
                       checked={isPublished}
                       onChange={(e) => setIsPublished(e.target.checked)}
-                      style={{ marginRight: '8px' }}
+                      style={{ 
+                        marginRight: '8px',
+                        width: '16px',
+                        height: '16px',
+                        cursor: 'pointer'
+                      }}
                     />
-                    <span className="form-label" style={{ marginBottom: 0 }}>
+                    <span style={{ marginBottom: 0, color: 'var(--fb-text)' }}>
                       Опубликовать сразу
                     </span>
                   </label>
                 </div>
 
                 {/* Кнопки */}
-                <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+                <div style={{ 
+                  display: 'flex', 
+                  gap: '10px', 
+                  marginTop: '25px',
+                  paddingTop: '20px',
+                  borderTop: '1px solid var(--fb-border)'
+                }}>
                   <button 
                     type="submit" 
                     className="btn btn-primary"
                     disabled={loading}
+                    style={{
+                      borderRadius: '0',
+                      padding: '8px 16px',
+                      fontSize: '13px',
+                      fontWeight: 'bold'
+                    }}
                   >
                     {loading ? 'Создание...' : 'Создать пост'}
                   </button>
@@ -229,6 +362,12 @@ const CreatePost = () => {
                     type="button" 
                     className="btn btn-secondary"
                     onClick={() => navigate('/')}
+                    style={{
+                      borderRadius: '0',
+                      padding: '8px 16px',
+                      fontSize: '13px',
+                      fontWeight: 'bold'
+                    }}
                   >
                     Отмена
                   </button>
