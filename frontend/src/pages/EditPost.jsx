@@ -29,7 +29,10 @@ const EditPost = () => {
       const post = await blogService.getPost(id);
       setTitle(post.title);
       setContent(post.content);
-      setCategoryName(post.category?.name || '');
+      // Объединяем названия рубрик через запятую
+      setCategoryName(post.categories && post.categories.length > 0 
+        ? post.categories.map(cat => cat.name).join(', ') 
+        : '');
       setIsPublished(post.is_published);
     } catch (err) {
       setError('Ошибка загрузки поста');
@@ -144,18 +147,31 @@ const EditPost = () => {
                   />
                 </div>
 
-                {/* Рубрика */}
+                {/* Рубрики */}
                 <div className="form-group">
-                  <label className="form-label">Рубрика (необязательно)</label>
+                  <label className="form-label">Рубрики (необязательно)</label>
                   <input
                     type="text"
                     className="form-control"
                     value={categoryName}
                     onChange={(e) => setCategoryName(e.target.value)}
-                    placeholder="Введите название рубрики"
+                    placeholder="Например: Программирование, Кодинг"
+                    style={{
+                      borderRadius: '0',
+                      border: '1px solid var(--fb-border)',
+                      padding: '10px 12px',
+                      fontSize: '13px',
+                      fontFamily: 'inherit'
+                    }}
                   />
-                  <small style={{ fontSize: '12px', color: 'var(--fb-text-light)', marginTop: '5px', display: 'block' }}>
-                    Оставьте пустым, чтобы удалить рубрику
+                  <small style={{ 
+                    fontSize: '11px', 
+                    color: 'var(--fb-text-light)', 
+                    marginTop: '6px', 
+                    display: 'block',
+                    lineHeight: '1.4'
+                  }}>
+                    Укажите несколько рубрик через запятую. Оставьте пустым, чтобы удалить все рубрики.
                   </small>
                 </div>
 

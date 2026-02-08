@@ -18,7 +18,7 @@ class PostListView(generics.ListAPIView):
     
     def get_queryset(self):
         user = self.request.user
-        queryset = Post.objects.filter(is_published=True).select_related('author', 'category').prefetch_related('images')
+        queryset = Post.objects.filter(is_published=True).select_related('author').prefetch_related('images', 'categories')
         
         # Получаем список друзей пользователя
         friendships = Friendship.objects.filter(
@@ -50,7 +50,7 @@ class PostListView(generics.ListAPIView):
 class PostDetailView(generics.RetrieveAPIView):
     serializer_class = PostDetailSerializer
     permission_classes = [IsApprovedUser]
-    queryset = Post.objects.filter(is_published=True)
+    queryset = Post.objects.filter(is_published=True).select_related('author').prefetch_related('images', 'attachments', 'categories', 'comments__author')
 
 
 class PostCreateView(generics.CreateAPIView):
@@ -132,7 +132,7 @@ class UserPostsView(generics.ListAPIView):
         return Post.objects.filter(
             author=user,
             is_published=True
-        ).select_related('author', 'category').prefetch_related('images').order_by('-created_at')
+        ).select_related('author').prefetch_related('images', 'categories').order_by('-created_at')
 
 
 class UserLikedPostsView(generics.ListAPIView):
@@ -149,7 +149,7 @@ class UserLikedPostsView(generics.ListAPIView):
         return Post.objects.filter(
             id__in=liked_post_ids,
             is_published=True
-        ).select_related('author', 'category').prefetch_related('images').order_by('-created_at')
+        ).select_related('author').prefetch_related('images', 'categories').order_by('-created_at')
 
 
 class SearchView(views.APIView):
@@ -170,7 +170,7 @@ class SearchView(views.APIView):
         posts = Post.objects.filter(
             Q(title__icontains=query) | Q(content__icontains=query),
             is_published=True
-        ).select_related('author', 'category').prefetch_related('images')[:20]
+        ).select_related('author').prefetch_related('images', 'categories')[:20]
         
         # Поиск по рубрикам
         categories = Category.objects.filter(name__icontains=query)[:10]

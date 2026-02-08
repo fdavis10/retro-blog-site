@@ -139,11 +139,12 @@ const Search = () => {
                             style={{
                               display: 'inline-block',
                               padding: '8px 16px',
-                              borderRadius: '20px',
+                              borderRadius: '0',
                               fontSize: '14px',
                               fontWeight: '500',
                               backgroundColor: cat.color,
                               color: cat.color === '#F7B928' || cat.color === '#45BD62' ? '#000' : '#fff',
+                              border: 'none'
                             }}
                           >
                             {cat.name}

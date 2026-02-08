@@ -48,21 +48,25 @@ const PostCard = ({ post, onLikeToggle }) => {
       </div>
 
       <div className="post-content">
-        {post.category && (
-          <div style={{ marginBottom: '10px' }}>
-            <span
-              style={{
-                display: 'inline-block',
-                padding: '4px 12px',
-                borderRadius: '20px',
-                fontSize: '12px',
-                fontWeight: '500',
-                backgroundColor: post.category.color,
-                color: post.category.color === '#F7B928' || post.category.color === '#45BD62' ? '#000' : '#fff',
-              }}
-            >
-              {post.category.name}
-            </span>
+        {post.categories && post.categories.length > 0 && (
+          <div style={{ marginBottom: '10px', display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+            {post.categories.map((category) => (
+              <span
+                key={category.id}
+                style={{
+                  display: 'inline-block',
+                  padding: '4px 12px',
+                  borderRadius: '0',
+                  fontSize: '12px',
+                  fontWeight: '500',
+                  backgroundColor: category.color,
+                  color: category.color === '#F7B928' || category.color === '#45BD62' ? '#000' : '#fff',
+                  border: 'none'
+                }}
+              >
+                {category.name}
+              </span>
+            ))}
           </div>
         )}
         <Link to={`/post/${post.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>

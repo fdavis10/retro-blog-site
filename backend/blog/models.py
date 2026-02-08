@@ -55,12 +55,10 @@ class Post(models.Model):
     )
     title = models.CharField(_('заголовок'), max_length=200)
     content = models.TextField(_('содержание'))
-    category = models.ForeignKey(
+    categories = models.ManyToManyField(
         Category,
-        on_delete=models.SET_NULL,
         related_name='posts',
-        verbose_name=_('рубрика'),
-        null=True,
+        verbose_name=_('рубрики'),
         blank=True
     )
     created_at = models.DateTimeField(_('дата создания'), auto_now_add=True)

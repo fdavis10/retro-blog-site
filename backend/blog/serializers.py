@@ -44,7 +44,7 @@ class LikeSerializer(serializers.ModelSerializer):
 class PostListSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
     images = PostImageSerializer(many=True, read_only=True)
-    category = CategorySerializer(read_only=True)
+    categories = CategorySerializer(many=True, read_only=True)
     likes_count = serializers.IntegerField(read_only=True)
     comments_count = serializers.IntegerField(read_only=True)
     is_liked = serializers.SerializerMethodField()
@@ -52,7 +52,7 @@ class PostListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
         fields = [
-            'id', 'title', 'content', 'author', 'images', 'category',
+            'id', 'title', 'content', 'author', 'images', 'categories',
             'created_at', 'updated_at', 'is_published',
             'likes_count', 'comments_count', 'is_liked'
         ]
@@ -70,7 +70,7 @@ class PostDetailSerializer(serializers.ModelSerializer):
     images = PostImageSerializer(many=True, read_only=True)
     attachments = PostAttachmentSerializer(many=True, read_only=True)
     comments = CommentSerializer(many=True, read_only=True)
-    category = CategorySerializer(read_only=True)
+    categories = CategorySerializer(many=True, read_only=True)
     likes_count = serializers.IntegerField(read_only=True)
     comments_count = serializers.IntegerField(read_only=True)
     is_liked = serializers.SerializerMethodField()
@@ -79,7 +79,7 @@ class PostDetailSerializer(serializers.ModelSerializer):
         model = Post
         fields = [
             'id', 'title', 'content', 'author', 'images', 'attachments',
-            'comments', 'category', 'created_at', 'updated_at', 'is_published',
+            'comments', 'categories', 'created_at', 'updated_at', 'is_published',
             'likes_count', 'comments_count', 'is_liked'
         ]
         read_only_fields = ['created_at', 'updated_at', 'author']
@@ -94,7 +94,7 @@ class PostDetailSerializer(serializers.ModelSerializer):
 class PostCreateUpdateSerializer(serializers.ModelSerializer):
     images = PostImageSerializer(many=True, read_only=True)
     attachments = PostAttachmentSerializer(many=True, read_only=True)
-    category = CategorySerializer(read_only=True)
+    categories = CategorySerializer(many=True, read_only=True)
     uploaded_images = serializers.ListField(
         child=serializers.ImageField(),
         write_only=True,
@@ -110,7 +110,7 @@ class PostCreateUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Post
         fields = [
-            'id', 'title', 'content', 'is_published', 'category', 'category_name',
+            'id', 'title', 'content', 'is_published', 'categories', 'category_name',
             'images', 'attachments', 'uploaded_images', 'uploaded_attachments',
             'created_at', 'updated_at'
         ]
@@ -121,12 +121,14 @@ class PostCreateUpdateSerializer(serializers.ModelSerializer):
         uploaded_attachments = validated_data.pop('uploaded_attachments', [])
         category_name = validated_data.pop('category_name', None)
         
-        # Создаем или получаем рубрику
-        if category_name:
-            category = Category.get_or_create_with_color(category_name)
-            validated_data['category'] = category
-        
         post = Post.objects.create(**validated_data)
+        
+        # Обрабатываем множественные рубрики через запятую
+        if category_name:
+            category_names = [name.strip() for name in category_name.split(',') if name.strip()]
+            for cat_name in category_names:
+                category = Category.get_or_create_with_color(cat_name)
+                post.categories.add(category)
         
         for order, image in enumerate(uploaded_images):
             PostImage.objects.create(post=post, image=image, order=order)
@@ -148,13 +150,14 @@ class PostCreateUpdateSerializer(serializers.ModelSerializer):
         uploaded_attachments = validated_data.pop('uploaded_attachments', [])
         category_name = validated_data.pop('category_name', None)
         
-        # Обновляем рубрику если указана
+        # Обновляем рубрики если указаны
         if category_name is not None:
+            instance.categories.clear()
             if category_name:
-                category = Category.get_or_create_with_color(category_name)
-                instance.category = category
-            else:
-                instance.category = None
+                category_names = [name.strip() for name in category_name.split(',') if name.strip()]
+                for cat_name in category_names:
+                    category = Category.get_or_create_with_color(cat_name)
+                    instance.categories.add(category)
         
         for attr, value in validated_data.items():
             setattr(instance, attr, value)

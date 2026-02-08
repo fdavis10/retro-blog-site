@@ -178,21 +178,25 @@ const PostDetail = () => {
             </div>
 
             <div className="post-content">
-              {post.category && (
-                <div style={{ marginBottom: '15px' }}>
-                  <span
-                    style={{
-                      display: 'inline-block',
-                      padding: '6px 14px',
-                      borderRadius: '20px',
-                      fontSize: '13px',
-                      fontWeight: '500',
-                      backgroundColor: post.category.color,
-                      color: post.category.color === '#F7B928' || post.category.color === '#45BD62' ? '#000' : '#fff',
-                    }}
-                  >
-                    {post.category.name}
-                  </span>
+              {post.categories && post.categories.length > 0 && (
+                <div style={{ marginBottom: '15px', display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                  {post.categories.map((category) => (
+                    <span
+                      key={category.id}
+                      style={{
+                        display: 'inline-block',
+                        padding: '6px 14px',
+                        borderRadius: '0',
+                        fontSize: '13px',
+                        fontWeight: '500',
+                        backgroundColor: category.color,
+                        color: category.color === '#F7B928' || category.color === '#45BD62' ? '#000' : '#fff',
+                        border: 'none'
+                      }}
+                    >
+                      {category.name}
+                    </span>
+                  ))}
                 </div>
               )}
               <h2 style={{ marginBottom: '15px' }}>{post.title}</h2>

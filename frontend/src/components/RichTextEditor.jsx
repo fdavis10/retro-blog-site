@@ -23,7 +23,28 @@ const RichTextEditor = ({ value, onChange, placeholder }) => {
   ];
 
   return (
-    <div className="rich-text-editor">
+    <div className="rich-text-editor" style={{ borderRadius: '0' }}>
+      <style>{`
+        .rich-text-editor .ql-container {
+          border-radius: 0 !important;
+          border-bottom-left-radius: 0 !important;
+          border-bottom-right-radius: 0 !important;
+        }
+        .rich-text-editor .ql-toolbar {
+          border-radius: 0 !important;
+          border-top-left-radius: 0 !important;
+          border-top-right-radius: 0 !important;
+          border: 1px solid var(--fb-border);
+          border-bottom: none;
+        }
+        .rich-text-editor .ql-container {
+          border: 1px solid var(--fb-border);
+          border-top: none;
+        }
+        .rich-text-editor .ql-editor {
+          min-height: 200px;
+        }
+      `}</style>
       <ReactQuill
         theme="snow"
         value={value}
@@ -33,7 +54,7 @@ const RichTextEditor = ({ value, onChange, placeholder }) => {
         placeholder={placeholder || 'Напишите что-нибудь...'}
         style={{ 
           backgroundColor: 'white',
-          borderRadius: '3px',
+          borderRadius: '0',
           minHeight: '200px'
         }}
       />
