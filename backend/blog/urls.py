@@ -22,4 +22,7 @@ urlpatterns = [
     
     # Search
     path('search/', views.SearchView.as_view(), name='search'),
+    
+    # Public stats
+    path('public-stats/', views.PublicStatsView.as_view(), name='public_stats'),
 ]

@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import Welcome from './pages/Welcome';
 import Profile from './pages/Profile';
 import ProfileEdit from './pages/ProfileEdit';
 import Friends from './pages/Friends';
@@ -22,7 +23,7 @@ const PrivateRoute = ({ children }) => {
     return <div className="loading">Загрузка...</div>;
   }
   
-  return user ? children : <Navigate to="/login" />;
+  return user ? children : <Navigate to="/guests" />;
 };
 
 const AdminRoute = ({ children }) => {
@@ -33,7 +34,7 @@ const AdminRoute = ({ children }) => {
   }
   
   if (!user) {
-    return <Navigate to="/login" />;
+    return <Navigate to="/guests" />;
   }
   
   if (!isAdmin) {
@@ -53,6 +54,7 @@ function App() {
               <AdminPanel />
             </AdminRoute>
           } />
+          <Route path="/guests" element={<Welcome />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
           

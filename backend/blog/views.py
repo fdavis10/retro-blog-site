@@ -10,6 +10,7 @@ from .serializers import (
     CommentSerializer, LikeSerializer
 )
 from users.permissions import IsApprovedUser, IsAdminUser, IsCommentAuthorOrReadOnly, IsPostAuthorOrAdmin
+from rest_framework.permissions import AllowAny
 
 
 class PostListView(generics.ListAPIView):
@@ -210,3 +211,21 @@ class SearchView(views.APIView):
             'categories': categories_data,
             'comments': comments_data
         })
+
+
+class PublicStatsView(views.APIView):
+    """Публичная статистика для неавторизованных пользователей"""
+    permission_classes = [AllowAny]
+    
+    def get(self, request):
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        
+        stats = {
+            'total_users': User.objects.filter(is_approved=True).count(),
+            'published_posts': Post.objects.filter(is_published=True).count(),
+            'total_comments': Comment.objects.count(),
+            'total_likes': Like.objects.count(),
+        }
+        
+        return Response(stats)
