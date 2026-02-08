@@ -19,4 +19,7 @@ urlpatterns = [
     path('profile/', views.ProfileView.as_view(), name='profile'),
     path('profile/update/', views.ProfileUpdateView.as_view(), name='profile_update'),
     path('profile/<str:username>/', views.UserProfileView.as_view(), name='user_profile'),
+    
+    # User Verification (Admin only)
+    path('verify/<str:username>/', views.VerifyUserView.as_view(), name='verify_user'),
 ]

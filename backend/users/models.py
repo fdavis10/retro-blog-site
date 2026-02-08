@@ -22,6 +22,11 @@ class User(AbstractUser):
         default=False,
         help_text=_('Может публиковать посты')
     )
+    is_verified = models.BooleanField(
+        _('верифицирован'),
+        default=False,
+        help_text=_('Пользователь верифицирован администратором')
+    )
     created_at = models.DateTimeField(_('дата регистрации'), auto_now_add=True)
     updated_at = models.DateTimeField(_('дата обновления'), auto_now=True)
     last_seen = models.DateTimeField(

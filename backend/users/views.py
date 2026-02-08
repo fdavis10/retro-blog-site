@@ -10,7 +10,7 @@ from .serializers import (
     UserProfileUpdateSerializer, RegistrationRequestSerializer,
     RegistrationRequestDetailSerializer, EmailVerificationSerializer
 )
-from .permissions import IsApprovedUser, IsOwnerOrReadOnly
+from .permissions import IsApprovedUser, IsOwnerOrReadOnly, IsAdminUser
 from .email_utils_old import send_verification_email
 import logging
 
@@ -251,4 +251,39 @@ class ResendVerificationCodeView(views.APIView):
         
         return Response({
             'message': 'Новый код отправлен на ваш email'
+        }, status=status.HTTP_200_OK)
+
+
+class VerifyUserView(views.APIView):
+    """
+    Верификация пользователя администратором.
+    Доступно только администраторам (is_admin_user, is_staff или is_superuser).
+    """
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request, username):
+        # Проверяем, что пользователь является администратором
+        if not (request.user.is_admin_user or request.user.is_staff or request.user.is_superuser):
+            return Response(
+                {'error': 'Только администраторы могут верифицировать пользователей'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        try:
+            user_to_verify = User.objects.get(username=username)
+        except User.DoesNotExist:
+            return Response(
+                {'error': 'Пользователь не найден'},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        # Переключаем статус верификации
+        user_to_verify.is_verified = not user_to_verify.is_verified
+        user_to_verify.save()
+        
+        action = 'верифицирован' if user_to_verify.is_verified else 'удалена верификация'
+        
+        return Response({
+            'message': f'Пользователь {user_to_verify.username} {action}',
+            'user': UserSerializer(user_to_verify).data
         }, status=status.HTTP_200_OK)

@@ -160,4 +160,9 @@ updateProfile: async (data) => {
     });
     return response.data;
   },
+
+  verifyUser: async (username) => {
+    const response = await api.post(`/auth/verify/${username}/`);
+    return response.data;
+  },
 };

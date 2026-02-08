@@ -29,10 +29,10 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             'id', 'username', 'email', 'first_name', 'last_name',
-            'is_approved', 'is_admin_user', 'is_staff', 'is_superuser',
+            'is_approved', 'is_admin_user', 'is_staff', 'is_superuser', 'is_verified',
             'created_at', 'last_seen', 'is_online', 'profile'
         ]
-        read_only_fields = ['id', 'created_at', 'is_approved', 'is_admin_user', 'is_staff', 'is_superuser', 'last_seen']
+        read_only_fields = ['id', 'created_at', 'is_approved', 'is_admin_user', 'is_staff', 'is_superuser', 'is_verified', 'last_seen']
 
     def get_is_online(self, obj):
         from django.utils import timezone

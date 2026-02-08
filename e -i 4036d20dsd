@@ -1,0 +1,23 @@
+[33mcommit 3e8d63f44e97bcbb27fe3219eda93e6e199ed029[m
+Author: Vladimir Telniy <fdavisarz10@gmail.com>
+Date:   Mon Feb 9 00:09:25 2026 +0300
+
+    Added PWA - test
+
+QUICK_DEPLOY.sh
+TROUBLESHOOTING.md
+frontend/PWA_SETUP.md
+frontend/README_PWA.md
+frontend/index.html
+frontend/package.json
+frontend/public/apple-touch-icon-180.svg
+frontend/public/apple-touch-icon-180x180.png
+frontend/public/pwa-192x192.png
+frontend/public/pwa-512x512.png
+frontend/public/pwa-icon-192.svg
+frontend/public/pwa-icon-512.svg
+frontend/scripts/generate-icons.js
+frontend/src/App.jsx
+frontend/src/components/PWAUpdatePrompt.jsx
+frontend/src/utils/registerSW.js
+frontend/vite.config.js

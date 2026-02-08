@@ -5,6 +5,7 @@ import { blogService } from '../services/blogService';
 import { formatDistanceToNow } from 'date-fns';
 import { ru } from 'date-fns/locale';
 import Avatar from './Avatar';
+import VerifiedBadge from './VerifiedBadge';
 
 const PostCard = ({ post, onLikeToggle }) => {
   const [isLiked, setIsLiked] = useState(post.is_liked);
@@ -37,11 +38,12 @@ const PostCard = ({ post, onLikeToggle }) => {
       <div className="post-header">
         <Avatar user={post.author} size="default" />
         <div className="post-author-info">
-          <Link to={`/profile/${post.author.username}`} className="post-author-name">
+          <Link to={`/profile/${post.author.username}`} className="post-author-name" style={{ display: 'inline-flex', alignItems: 'center' }}>
             {post.author.first_name && post.author.last_name 
               ? `${post.author.first_name} ${post.author.last_name}`
               : post.author.username
             }
+            {post.author.is_verified && <VerifiedBadge size="sm" />}
           </Link>
           <div className="post-date">{formatDate(post.created_at)}</div>
         </div>

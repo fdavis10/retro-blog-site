@@ -5,6 +5,7 @@ import { blogService } from '../services/blogService';
 import { useAuth } from '../context/AuthContext';
 import Header from '../components/Header';
 import Avatar from '../components/Avatar';
+import VerifiedBadge from '../components/VerifiedBadge';
 import NotificationBanner from '../components/NotificationBanner';
 import { formatDistanceToNow } from 'date-fns';
 import { ru } from 'date-fns/locale';
@@ -150,11 +151,12 @@ const PostDetail = () => {
             <div className="post-header">
               <Avatar user={post.author} size="default" />
               <div className="post-author-info">
-                <Link to={`/profile/${post.author.username}`} className="post-author-name">
+                <Link to={`/profile/${post.author.username}`} className="post-author-name" style={{ display: 'inline-flex', alignItems: 'center' }}>
                   {post.author.first_name && post.author.last_name 
                     ? `${post.author.first_name} ${post.author.last_name}`
                     : post.author.username
                   }
+                  {post.author.is_verified && <VerifiedBadge size="sm" />}
                 </Link>
                 <div className="post-date">{formatDate(post.created_at)}</div>
               </div>
@@ -288,11 +290,12 @@ const PostDetail = () => {
                       <Avatar user={comment.author} size="sm" />
                       <div className="comment-bubble">
                         <div className="comment-author">
-                          <Link to={`/profile/${comment.author.username}`}>
+                          <Link to={`/profile/${comment.author.username}`} style={{ display: 'inline-flex', alignItems: 'center' }}>
                             {comment.author.first_name && comment.author.last_name 
                               ? `${comment.author.first_name} ${comment.author.last_name}`
                               : comment.author.username
                             }
+                            {comment.author.is_verified && <VerifiedBadge size="sm" />}
                           </Link>
                         </div>
                         <div className="comment-text">{comment.content}</div>

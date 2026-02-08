@@ -8,11 +8,12 @@ import Header from '../components/Header';
 import Avatar from '../components/Avatar';
 import FriendshipButton from '../components/FriendshipButton';
 import PostCard from '../components/PostCard';
+import VerifiedBadge from '../components/VerifiedBadge';
 
 const Profile = () => {
   const { username } = useParams();
   const navigate = useNavigate();
-  const { user: currentUser } = useAuth();
+  const { user: currentUser, isAdmin, isSuperuser } = useAuth();
   
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -73,7 +74,19 @@ const Profile = () => {
     }
   };
 
+  const handleVerifyUser = async () => {
+    try {
+      const response = await authService.verifyUser(username);
+      setUser(response.user);
+      alert(response.message);
+    } catch (err) {
+      console.error('Error verifying user:', err);
+      alert(err.response?.data?.error || 'Ошибка при верификации пользователя');
+    }
+  };
+
   const isOwnProfile = currentUser?.username === username;
+  const canVerify = (isAdmin || isSuperuser) && !isOwnProfile;
 
   // Функция для отображения выбора из списка
   const getChoiceDisplay = (value, choices) => {
@@ -204,11 +217,12 @@ const Profile = () => {
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px', flexWrap: 'wrap', gap: '15px' }}>
                     <div style={{ flex: 1, minWidth: 200 }}>
-                      <h2 style={{ marginBottom: '8px', fontSize: '20px', fontWeight: 'bold' }}>
+                      <h2 style={{ marginBottom: '8px', fontSize: '20px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '6px' }}>
                         {user.first_name && user.last_name 
                           ? `${user.first_name} ${user.last_name}`
                           : user.username
                         }
+                        {user.is_verified && <VerifiedBadge size="default" />}
                       </h2>
                       <div style={{ fontSize: '13px', color: 'var(--fb-text-light)', marginBottom: '15px' }}>
                         @{user.username}
@@ -246,6 +260,15 @@ const Profile = () => {
                             <FaEnvelope /> Написать
                           </Link>
                           <FriendshipButton user={user} onStatusChange={loadProfile} />
+                          {canVerify && (
+                            <button
+                              onClick={handleVerifyUser}
+                              className={`btn btn-sm ${user.is_verified ? 'btn-secondary' : 'btn-primary'}`}
+                              style={{ display: 'flex', alignItems: 'center', gap: '5px' }}
+                            >
+                              {user.is_verified ? '✓ Верифицирован' : 'Верифицировать'}
+                            </button>
+                          )}
                         </>
                       )}
                     </div>
